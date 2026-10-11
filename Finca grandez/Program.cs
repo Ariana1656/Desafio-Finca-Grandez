@@ -21,6 +21,14 @@ namespace PrototipoWebFincaGrandez
         // DELIVERY
         const double COSTO_DELIVERY = 15.00;
         const string DIAS_ENTREGA = "1 a 3 dias";
+
+        // DATOS DE FINCA GRANDEZ (para la boleta)
+        const string EMISOR_NOMBRE = "CORPORACION GRANDEZ S.A.C.";
+        const string EMISOR_RUC = "20602996931";
+        const string EMISOR_DIRECCION1 = "OTR. SECTOR MITOPAMPA . CAS. ZARUMILLA";
+        const string EMISOR_DIRECCION2 = "AMAZONAS - RODRIGUEZ DE MENDOZA - CHIRIMOTO";
+        const string EMISOR_TIENDA = "TIENDA: PUEBLO LIBRE 15084";
+        const string EMISOR_TIENDA_DIRECCION = "C. JOSE ANTONIO ENCINAS 184";
         static string[] distritosLima =
         {
             "Cercado de Lima", "Brena", "La Victoria", "Rimac", "San Luis", "Lince",
@@ -449,6 +457,17 @@ namespace PrototipoWebFincaGrandez
         // ==========================================================
         // BOLETA / FACTURA
         // ==========================================================
+        // Centra un texto dentro de un ancho de 56 caracteres
+        static string Centrar(string texto)
+        {
+            int espacios = (56 - texto.Length) / 2;
+            if (espacios < 0)
+            {
+                espacios = 0;
+            }
+            return new string(' ', espacios) + texto;
+        }
+
         static void MostrarBoleta(string tipoComprobante, string idPedido,
             string numDocumento, string razonSocial, string nombreCliente, string telefonoCliente,
             string direccionCliente, string distritoCliente, string textoEntrega,
@@ -456,60 +475,87 @@ namespace PrototipoWebFincaGrandez
             string nombreProducto, int cantidad, double precioProducto,
             double subtotal, double costoDelivery, double totalPagar, string codigoOperacionYape)
         {
-            Console.WriteLine("\n=========================================================");
-            string tipoDocumento;
+            // Numero del comprobante: serie + numero del pedido (ej. B001-00000001)
+            string numeroPedido = idPedido.Substring(4).PadLeft(8, '0');
+            string serie;
+            string tituloComprobante;
+            string nombreDocumento;
             if (tipoComprobante == "1")
             {
-                Console.WriteLine("           BOLETA DE VENTA - FINCA GRANDEZ");
-                tipoDocumento = "BOLETA";
+                serie = "B001";
+                tituloComprobante = "BOLETA DE VENTA ELECTRONICA";
+                nombreDocumento = "boleta de venta electronica.";
             }
             else
             {
-                Console.WriteLine("              FACTURA - FINCA GRANDEZ");
-                tipoDocumento = "FACTURA";
+                serie = "F001";
+                tituloComprobante = "FACTURA ELECTRONICA";
+                nombreDocumento = "factura electronica.";
             }
-            Console.WriteLine("=========================================================");
-            Console.WriteLine($"ID Pedido:      {idPedido}");
-            Console.WriteLine("---------------------------------------------------------");
-            Console.WriteLine($"Documento:      {tipoDocumento}");
+
+            double descuento = 0.00;
+            string codigoBarras = "|| ||| | |||| || ||| | || |||| | ||| || | |||| ||| | ||";
+
+            // ---- CABECERA CON LOS DATOS DE FINCA GRANDEZ ----
+            Console.WriteLine();
+            Console.WriteLine(Centrar(EMISOR_NOMBRE + " | FINCA GRANDEZ"));
+            Console.WriteLine(Centrar("RUC: " + EMISOR_RUC));
+            Console.WriteLine(Centrar(EMISOR_DIRECCION1));
+            Console.WriteLine(Centrar(EMISOR_DIRECCION2));
+            Console.WriteLine(EMISOR_TIENDA);
+            Console.WriteLine(EMISOR_TIENDA_DIRECCION);
+            Console.WriteLine(Centrar(tituloComprobante + ": " + serie + "-" + numeroPedido));
+            Console.WriteLine(Centrar(codigoBarras));
+            Console.WriteLine(Centrar(codigoBarras));
+            Console.WriteLine(Centrar(codigoBarras));
+
+            // ---- DATOS DEL CLIENTE ----
             if (tipoComprobante == "2")
             {
-                Console.WriteLine($"RUC:            {numDocumento}");
-                Console.WriteLine($"Razon Social:   {razonSocial}");
-                Console.WriteLine($"Contacto:       {nombreCliente}");
+                Console.WriteLine("RUC: " + numDocumento + " | " + razonSocial);
+                Console.WriteLine("Contacto: " + nombreCliente);
             }
             else
             {
-                Console.WriteLine($"DNI:            {numDocumento}");
-                Console.WriteLine($"Cliente:        {nombreCliente}");
+                Console.WriteLine("DNI: " + numDocumento + " | " + nombreCliente);
             }
-            Console.WriteLine($"Telefono:       {telefonoCliente}");
-            Console.WriteLine($"Direccion:      {direccionCliente}, {distritoCliente}");
+            Console.WriteLine("Cajero: SISTEMA WEB  " + DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
+            Console.WriteLine("Telefono: " + telefonoCliente);
+            Console.WriteLine("Direccion: " + direccionCliente + ", " + distritoCliente);
             if (textoEntrega == "Delivery")
             {
-                Console.WriteLine($"Referencia:     {referenciaCliente}");
-                Console.WriteLine($"Tel. contacto:  {telContacto}");
-                Console.WriteLine($"Entrega en:     {diasEntregas}");
+                Console.WriteLine("Referencia: " + referenciaCliente);
+                Console.WriteLine("Tel. contacto: " + telContacto);
+                Console.WriteLine("Entrega en: " + diasEntregas);
             }
             else
             {
-                Console.WriteLine("Entrega:        Recojo en tienda");
+                Console.WriteLine("Entrega: Recojo en tienda");
             }
-            Console.WriteLine("---------------------------------------------------------");
-            Console.WriteLine($"Producto:       {nombreProducto}");
-            Console.WriteLine($"Cantidad:       {cantidad}");
-            Console.WriteLine($"Precio unit.:   S/ {precioProducto:F2}");
-            Console.WriteLine("---------------------------------------------------------");
-            Console.WriteLine($"SUBTOTAL PEDIDO:  S/ {subtotal:F2}");
-            Console.WriteLine($"COSTO ENVIO:      S/ {costoDelivery:F2}");
-            Console.WriteLine("---------------------------------------------------------");
-            Console.WriteLine($"TOTAL A PAGAR:    S/ {totalPagar:F2}");
-            Console.WriteLine("=========================================================");
-            Console.WriteLine("Metodo Pago:    YAPE");
-            Console.WriteLine("Pagado a:       987 654 321 (Finca Grandez)");
-            Console.WriteLine($"Operacion ID:   {codigoOperacionYape}");
-            Console.WriteLine("=========================================================");
-            Console.WriteLine("       *Pedido registrado correctamente!\n");
+
+            // ---- DETALLE ----
+            Console.WriteLine("--------------------------------------------------------");
+            Console.WriteLine($"{"ARTICULO",-24}{"CANT",4}{"P/U",9}{"DSCTO",7}{"TOTAL",9}");
+            Console.WriteLine("--------------------------------------------------------");
+            Console.WriteLine($"{nombreProducto,-24}{cantidad,4}{precioProducto,9:F2}{descuento,7:F2}{subtotal,9:F2}");
+            Console.WriteLine("--------------------------------------------------------");
+
+            // ---- TOTALES ----
+            Console.WriteLine($"{"SUBTOTAL PEDIDO:",-40}S/ {subtotal,10:F2}");
+            Console.WriteLine($"{"COSTO ENVIO:",-40}S/ {costoDelivery,10:F2}");
+            Console.WriteLine("--------------------------------------------------------");
+            Console.WriteLine($"{"TOTAL A PAGAR:",-40}S/ {totalPagar,10:F2}");
+            Console.WriteLine("========================================================");
+
+            // ---- PAGO ----
+            Console.WriteLine("Metodo Pago: YAPE");
+            Console.WriteLine("Pagado a: 987 654 321 (Finca Grandez)");
+            Console.WriteLine("Operacion ID: " + codigoOperacionYape);
+            Console.WriteLine("========================================================");
+            Console.WriteLine(Centrar("Esta es una representacion impresa de la"));
+            Console.WriteLine(Centrar(nombreDocumento));
+            Console.WriteLine(Centrar("*Pedido registrado correctamente!"));
+            Console.WriteLine();
         }
 
         // ==========================================================
