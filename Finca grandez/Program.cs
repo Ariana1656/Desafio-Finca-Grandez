@@ -52,6 +52,10 @@ namespace PrototipoWebFincaGrandez
         static List<double> pedidosTotal = new List<double>();
         static List<string> pedidosEstado = new List<string>();
 
+        // VENTAS POR TIPO DE CAFE (para el reporte de mas vendidos)
+        static int[] unidadesCafe = new int[4];
+        static double[] montosCafe = new double[4];
+
         // CUENTA Y SESION
         static bool cuentaCreada = false;
         static bool sesionIniciada = false;
@@ -221,7 +225,8 @@ namespace PrototipoWebFincaGrandez
                     Console.WriteLine($"  ID:        {pedidosId[i]}");
                     Console.WriteLine($"  Fecha:     {pedidosFecha[i]} {pedidosHora[i]}");
                     Console.WriteLine($"  Cliente:   {pedidosCliente[i]}");
-                    Console.WriteLine($"  Producto:  {pedidosProducto[i]} x {pedidosCantidad[i]}");
+                    Console.WriteLine($"  Producto:  {pedidosProducto[i]}");
+                    Console.WriteLine($"  Unidades:  {pedidosCantidad[i]}");
                     Console.WriteLine($"  Entrega:   {pedidosEntrega[i]} - {pedidosDireccion[i]}");
                     if (pedidosEntrega[i] == "Delivery")
                     {
@@ -323,7 +328,7 @@ namespace PrototipoWebFincaGrandez
                     {
                         totalRecojo++;
                     }
-                    Console.WriteLine($"{pedidosId[i]} | {pedidosHora[i]} | {pedidosCliente[i]} | {pedidosProducto[i]} x {pedidosCantidad[i]} | S/ {pedidosTotal[i]:F2}");
+                    Console.WriteLine($"{pedidosId[i]} | {pedidosHora[i]} | {pedidosCliente[i]} | {pedidosProducto[i]} | {pedidosCantidad[i]} und. | S/ {pedidosTotal[i]:F2}");
                 }
             }
             if (cantidadPedidos == 0)
@@ -385,41 +390,11 @@ namespace PrototipoWebFincaGrandez
             int[] unidades = new int[4];
             double[] ventas = new double[4];
 
-            // Sumar las ventas de todas las presentaciones por tipo de cafe.
-            for (int i = 0; i < pedidosProducto.Count; i++)
+            // Copiar las ventas acumuladas (asi no se desordenan los originales)
+            for (int i = 0; i < tipos.Length; i++)
             {
-                int indiceProducto = -1;
-                for (int k = 0; k < nombresProductos.Length; k++)
-                {
-                    if (nombresProductos[k] == pedidosProducto[i])
-                    {
-                        indiceProducto = k;
-                    }
-                }
-
-                if (indiceProducto != -1)
-                {
-                    int tipo;
-                    if (indiceProducto <= 2)
-                    {
-                        tipo = 0;
-                    }
-                    else if (indiceProducto <= 5)
-                    {
-                        tipo = 1;
-                    }
-                    else if (indiceProducto <= 7)
-                    {
-                        tipo = 2;
-                    }
-                    else
-                    {
-                        tipo = 3;
-                    }
-
-                    unidades[tipo] = unidades[tipo] + pedidosCantidad[i];
-                    ventas[tipo] = ventas[tipo] + precios[indiceProducto] * pedidosCantidad[i];
-                }
+                unidades[i] = unidadesCafe[i];
+                ventas[i] = montosCafe[i];
             }
 
             // RANKING 1: POR UNIDADES VENDIDAS
@@ -464,7 +439,7 @@ namespace PrototipoWebFincaGrandez
             string numDocumento, string razonSocial, string nombreCliente, string telefonoCliente,
             string direccionCliente, string distritoCliente, string textoEntrega,
             string referenciaCliente, string telContacto, string diasEntregas,
-            string nombreProducto, int cantidad, double precioProducto,
+            int[] carrito,
             double subtotal, double costoDelivery, double totalPagar, string codigoOperacionYape)
         {
             Console.WriteLine();
@@ -510,12 +485,21 @@ namespace PrototipoWebFincaGrandez
             Console.WriteLine("--------------------------------------------------------");
             Console.WriteLine($"{"ARTICULO",-30}{"CANT",6}{"P/U",10}{"TOTAL",10}");
             Console.WriteLine("--------------------------------------------------------");
-            Console.WriteLine($"{nombreProducto,-30}{cantidad,6}{precioProducto,10:F2}{subtotal,10:F2}");
+            int items = 0;
+            for (int i = 0; i < carrito.Length; i++)
+            {
+                if (carrito[i] > 0)
+                {
+                    items = items + 1;
+                    double totalProducto = precios[i] * carrito[i];
+                    Console.WriteLine($"{nombresProductos[i],-30}{carrito[i],6}{precios[i],10:F2}{totalProducto,10:F2}");
+                }
+            }
             Console.WriteLine("--------------------------------------------------------");
 
             // ---- TOTALES ----
             double igv = totalPagar - totalPagar / 1.18;
-            string textoItems = "Items: 1";
+            string textoItems = "Items: " + items;
             Console.WriteLine($"{"SUBTOTAL PEDIDO:",41}  S/ {subtotal,10:F2}");
             Console.WriteLine($"{"COSTO ENVIO:",41}  S/ {costoDelivery,10:F2}");
             Console.WriteLine($"{"IGV (18%):",41}  S/ {igv,10:F2}");
@@ -659,63 +643,109 @@ namespace PrototipoWebFincaGrandez
         // ==========================================================
         static void RealizarPedido()
         {
-            MostrarCatalogo();
+            // Carrito: cantidad pedida de cada producto (posiciones 0 a 8)
+            int[] carrito = new int[9];
 
-            // Elegir producto
-            int productoElegido = 0;
-            while (true)
+            string otroProducto = "S";
+            while (otroProducto == "S")
             {
-                string entrada = Leer($"Elija el numero de producto (1-{nombresProductos.Length}): ");
-                if (!int.TryParse(entrada, out productoElegido))
+                MostrarCatalogo();
+
+                // Elegir producto
+                int productoElegido = 0;
+                while (true)
                 {
-                    Console.WriteLine("Error: ingrese solo el numero del producto.");
+                    string entrada = Leer($"Elija el numero de producto (1-{nombresProductos.Length}): ");
+                    if (!int.TryParse(entrada, out productoElegido))
+                    {
+                        Console.WriteLine("Error: ingrese solo el numero del producto.");
+                    }
+                    else if (productoElegido >= 1 && productoElegido <= nombresProductos.Length)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: opcion de producto invalida.");
+                    }
                 }
-                else if (productoElegido >= 1 && productoElegido <= nombresProductos.Length)
+
+                int stockActual = ObtenerStock(productoElegido);
+
+                // Si no hay stock, no se puede pedir ese producto.
+                if (stockActual == 0)
                 {
-                    break;
+                    Console.WriteLine("Error: ese producto no tiene stock disponible.");
                 }
                 else
                 {
-                    Console.WriteLine("Error: opcion de producto invalida.");
+                    // Elegir cantidad
+                    int cantidad = 0;
+                    while (true)
+                    {
+                        string entrada = Leer("Ingrese la cantidad a comprar (Paquetes): ");
+                        if (!int.TryParse(entrada, out cantidad))
+                        {
+                            Console.WriteLine("Error: ingrese solo numeros.");
+                        }
+                        else if (cantidad <= 0)
+                        {
+                            Console.WriteLine("Error: la cantidad debe ser mayor a 0.");
+                        }
+                        else if (cantidad > stockActual)
+                        {
+                            Console.WriteLine($"Error: debe ingresar una cantidad menor o igual al stock ({stockActual} und.).");
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    // Agregar al carrito y descontar del stock
+                    carrito[productoElegido - 1] = carrito[productoElegido - 1] + cantidad;
+                    stock[productoElegido - 1] = SetStock(stock[productoElegido - 1], stock[productoElegido - 1] - cantidad);
+                    Console.WriteLine("Producto agregado al carrito.");
+                }
+
+                // Preguntar si desea seguir comprando
+                while (true)
+                {
+                    otroProducto = Leer("¿Desea anadir otro producto? (S = Si / N = Continuar con la compra): ").Trim().ToUpper();
+                    if (otroProducto == "S" || otroProducto == "N")
+                    {
+                        break;
+                    }
+                    Console.WriteLine("Error: responda S o N.");
                 }
             }
 
-            double precioProducto = precios[productoElegido - 1];
-            string nombreProducto = nombresProductos[productoElegido - 1];
-            int stockActual = ObtenerStock(productoElegido);
-
-            // Si no hay stock, no se puede pedir ese producto.
-            if (stockActual == 0)
+            // Calcular el subtotal, las unidades y el resumen de productos
+            double subtotal = 0;
+            int totalUnidades = 0;
+            string resumenProductos = "";
+            for (int i = 0; i < carrito.Length; i++)
             {
-                Console.WriteLine("Error: ese producto no tiene stock disponible.");
+                if (carrito[i] > 0)
+                {
+                    subtotal = subtotal + precios[i] * carrito[i];
+                    totalUnidades = totalUnidades + carrito[i];
+                    if (resumenProductos != "")
+                    {
+                        resumenProductos = resumenProductos + " + ";
+                    }
+                    resumenProductos = resumenProductos + nombresProductos[i] + " x" + carrito[i];
+                }
+            }
+
+            // Si no agrego ningun producto, no hay pedido
+            if (totalUnidades == 0)
+            {
+                Console.WriteLine("No se agrego ningun producto al carrito.");
                 return;
             }
 
-            // Elegir cantidad
-            int cantidad = 0;
-            while (true)
-            {
-                string entrada = Leer("Ingrese la cantidad a comprar (Paquetes): ");
-                if (!int.TryParse(entrada, out cantidad))
-                {
-                    Console.WriteLine("Error: ingrese solo numeros.");
-                }
-                else if (cantidad <= 0)
-                {
-                    Console.WriteLine("Error: la cantidad debe ser mayor a 0.");
-                }
-                else if (cantidad > stockActual)
-                {
-                    Console.WriteLine($"Error: debe ingresar una cantidad menor o igual al stock ({stockActual} und.).");
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            Console.WriteLine("\nStock confirmado. Procediendo al registro del cliente...");
-            double subtotal = precioProducto * cantidad;
+            Console.WriteLine("\nCarrito confirmado. Procediendo al registro del cliente...");
 
             // ---- 2. DATOS DEL CLIENTE ----
             Console.WriteLine("\n--- 2. DATOS DEL CLIENTE ---");
@@ -921,15 +951,12 @@ namespace PrototipoWebFincaGrandez
                 }
             }
 
-            // ---- DESCONTAR STOCK ----
-            stock[productoElegido - 1] = SetStock(stock[productoElegido - 1], stock[productoElegido - 1] - cantidad);
-
             // ---- GENERAR Y GUARDAR PEDIDO ----
             string idPedido = GenerarIdPedido();
             pedidosId.Add(idPedido);
             pedidosCliente.Add(nombreCliente);
-            pedidosProducto.Add(nombreProducto);
-            pedidosCantidad.Add(cantidad);
+            pedidosProducto.Add(resumenProductos);
+            pedidosCantidad.Add(totalUnidades);
             pedidosEntrega.Add(textoEntrega);
             pedidosDireccion.Add(direccionCliente + ", " + distritoCliente);
             pedidosReferencia.Add(referenciaCliente);
@@ -948,11 +975,38 @@ namespace PrototipoWebFincaGrandez
                 pedidosEstado.Add("Pagado - Listo para recojo");
             }
 
+            // ---- SUMAR LAS VENTAS POR TIPO DE CAFE (para el reporte) ----
+            for (int i = 0; i < carrito.Length; i++)
+            {
+                if (carrito[i] > 0)
+                {
+                    int tipo;
+                    if (i <= 2)
+                    {
+                        tipo = 0;
+                    }
+                    else if (i <= 5)
+                    {
+                        tipo = 1;
+                    }
+                    else if (i <= 7)
+                    {
+                        tipo = 2;
+                    }
+                    else
+                    {
+                        tipo = 3;
+                    }
+                    unidadesCafe[tipo] = unidadesCafe[tipo] + carrito[i];
+                    montosCafe[tipo] = montosCafe[tipo] + precios[i] * carrito[i];
+                }
+            }
+
             // ---- BOLETA / FACTURA FINAL ----
             MostrarBoleta(tipoComprobante, idPedido, numDocumento, razonSocial, nombreCliente,
                 telefonoCliente, direccionCliente, distritoCliente, textoEntrega,
-                referenciaCliente, telContacto, diasEntregas, nombreProducto,
-                cantidad, precioProducto, subtotal, costoDelivery, totalPagar, codigoOperacionYape);
+                referenciaCliente, telContacto, diasEntregas, carrito,
+                subtotal, costoDelivery, totalPagar, codigoOperacionYape);
         }
 
         // ==========================================================
