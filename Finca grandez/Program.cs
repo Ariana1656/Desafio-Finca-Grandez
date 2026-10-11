@@ -25,8 +25,6 @@ class Program
         "Cafe Geisha (250g)"
     };
 
-    static double[] productosPrecio = { 32.00, 52.00, 72.00, 28.00, 48.00, 68.00, 35.00, 65.00, 45.00 };
-
     static string[] presentaciones =
     {
         "(250g)", "(500g)", "(1kg)",
@@ -34,6 +32,8 @@ class Program
         "(250g)", "(500g)",
         "(250g)"
     };
+
+    static double[] productosPrecio = { 32.00, 52.00, 72.00, 28.00, 48.00, 68.00, 35.00, 65.00, 45.00 };
 
     // ==========================================================
     // DELIVERY
@@ -54,7 +54,7 @@ class Program
     };
 
     // ==========================================================
-    // PEDIDOS (listas porque crecen con cada pedido)
+    // PEDIDOS (listas paralelas)
     // ==========================================================
     static List<string> pedidosId = new List<string>();
     static List<string> pedidosFecha = new List<string>();
@@ -71,11 +71,19 @@ class Program
     static List<string> pedidosEstado = new List<string>();
 
     // ==========================================================
+    // VENTAS POR TIPO DE CAFE (arreglos paralelos)
+    // ==========================================================
+    static string[] tiposCafe = { "Blend Premium", "Cafe Tradicion", "Cafe Catuai", "Cafe Geisha" };
+    static int[] unidadesCafe = { 0, 0, 0, 0 };
+    static double[] montosCafe = { 0.0, 0.0, 0.0, 0.0 };
+
+    // ==========================================================
     // DATOS DEL PEDIDO ACTUAL (los usa mostrarBoleta)
     // ==========================================================
     static string tipoComprobante = "1";
     static string idPedido = "";
     static string numDocumento = "";
+    static string razonSocial = "";
     static string nombreCliente = "";
     static string telefonoCliente = "";
     static string direccionCliente = "";
@@ -97,7 +105,7 @@ class Program
     // ==========================================================
     static void limpiarPantalla()
     {
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 3; i++)
         {
             Console.WriteLine();
         }
@@ -271,12 +279,8 @@ class Program
                 {
                     totalRecojo = totalRecojo + 1;
                 }
-                Console.WriteLine(
-                    $"{pedidosId[i]} | " +
-                    $"{pedidosHora[i]} | " +
-                    $"{pedidosCliente[i]} | " +
-                    $"{pedidosProducto[i]} x {pedidosCantidad[i]} | " +
-                    $"S/ {pedidosTotal[i]:F2}");
+                Console.WriteLine($"{pedidosId[i]} | {pedidosHora[i]} | {pedidosCliente[i]} | " +
+                                  $"{pedidosProducto[i]} x {pedidosCantidad[i]} | S/ {pedidosTotal[i]:F2}");
             }
         }
         if (cantidadPedidos == 0)
@@ -288,6 +292,85 @@ class Program
         Console.WriteLine($"  - Delivery:      {totalDelivery}");
         Console.WriteLine($"  - Recojo:        {totalRecojo}");
         Console.WriteLine($"Total vendido:     S/ {totalVendido:F2}\n");
+    }
+
+    // Ordena de mayor a menor por "valores" (seleccion).
+    // Los otros dos arreglos se reordenan igual para no perder la relacion.
+    static void ordenarSeleccion(string[] nombres, double[] valores, double[] otros)
+    {
+        int n = valores.Length;
+        for (int i = 0; i < n - 1; i++)
+        {
+            int posMayor = i;
+            for (int j = i + 1; j < n; j++)
+            {
+                if (valores[j] > valores[posMayor])
+                {
+                    posMayor = j;
+                }
+            }
+            double auxValor = valores[i];
+            valores[i] = valores[posMayor];
+            valores[posMayor] = auxValor;
+
+            string auxNombre = nombres[i];
+            nombres[i] = nombres[posMayor];
+            nombres[posMayor] = auxNombre;
+
+            double auxOtro = otros[i];
+            otros[i] = otros[posMayor];
+            otros[posMayor] = auxOtro;
+        }
+    }
+
+    static void reporteMayorVenta()
+    {
+        string[] nombres = new string[tiposCafe.Length];
+        double[] unidades = new double[tiposCafe.Length];
+        double[] montos = new double[tiposCafe.Length];
+        for (int i = 0; i < tiposCafe.Length; i++)
+        {
+            nombres[i] = tiposCafe[i];
+            unidades[i] = unidadesCafe[i];
+            montos[i] = montosCafe[i];
+        }
+
+        ordenarSeleccion(nombres, montos, unidades);
+
+        Console.WriteLine("\n=========================================================");
+        Console.WriteLine("      PRODUCTOS CON MAYOR VENTA - FINCA GRANDEZ");
+        Console.WriteLine("=========================================================");
+        Console.WriteLine("   Puesto    Tipo de cafe      Venta total");
+        for (int i = 0; i < nombres.Length; i++)
+        {
+            Console.WriteLine($"   [{i + 1}]       {nombres[i],-18}S/ {montos[i]:F2}");
+        }
+        Console.WriteLine("=========================================================\n");
+    }
+
+    static void reporteMasUnidades()
+    {
+        string[] nombres = new string[tiposCafe.Length];
+        double[] unidades = new double[tiposCafe.Length];
+        double[] montos = new double[tiposCafe.Length];
+        for (int i = 0; i < tiposCafe.Length; i++)
+        {
+            nombres[i] = tiposCafe[i];
+            unidades[i] = unidadesCafe[i];
+            montos[i] = montosCafe[i];
+        }
+
+        ordenarSeleccion(nombres, unidades, montos);
+
+        Console.WriteLine("\n=========================================================");
+        Console.WriteLine("   UNIDADES MAS VENDIDAS (STOCK) - FINCA GRANDEZ");
+        Console.WriteLine("=========================================================");
+        Console.WriteLine("   Puesto    Tipo de cafe      Unidades vendidas");
+        for (int i = 0; i < nombres.Length; i++)
+        {
+            Console.WriteLine($"   [{i + 1}]       {nombres[i],-18}{(int)unidades[i]} und.");
+        }
+        Console.WriteLine("=========================================================\n");
     }
 
     static void mostrarBoleta()
@@ -308,8 +391,17 @@ class Program
         Console.WriteLine($"ID Pedido:      {idPedido}");
         Console.WriteLine("---------------------------------------------------------");
         Console.WriteLine($"Documento:      {tipoDocumento}");
-        Console.WriteLine($"Nro. Doc:       {numDocumento}");
-        Console.WriteLine($"Cliente:        {nombreCliente}");
+        if (tipoComprobante == "2")
+        {
+            Console.WriteLine($"RUC:            {numDocumento}");
+            Console.WriteLine($"Razon Social:   {razonSocial}");
+            Console.WriteLine($"Contacto:       {nombreCliente}");
+        }
+        else
+        {
+            Console.WriteLine($"DNI:            {numDocumento}");
+            Console.WriteLine($"Cliente:        {nombreCliente}");
+        }
         Console.WriteLine($"Telefono:       {telefonoCliente}");
         Console.WriteLine($"Direccion:      {direccionCliente}, {distritoCliente}");
         if (textoEntrega == "Delivery")
@@ -366,20 +458,19 @@ class Program
             Console.Write("Ingrese una opcion (1-3): ");
             string opcionInicio = Console.ReadLine();
 
-            // ======================================================
+            // ------------------------------------------------------
             // CREAR CUENTA
-            // ======================================================
+            // ------------------------------------------------------
             if (opcionInicio == "1")
             {
                 Console.WriteLine("\n--- CREACION DE CUENTA ---");
 
-                // CORREO
+                // Correo
                 string correoNuevo = "";
                 while (true)
                 {
                     Console.Write("Correo electronico: ");
                     string correoInput = Console.ReadLine().Trim().ToLower();
-
                     if (correoInput == "")
                     {
                         Console.WriteLine("Error: el correo no puede estar vacio.");
@@ -408,13 +499,12 @@ class Program
                 }
                 listacorreos.Add(correoNuevo);
 
-                // USUARIO
+                // Usuario
                 string usuarioNuevo = "";
                 while (true)
                 {
                     Console.Write("Nombre de usuario : ");
                     usuarioNuevo = Console.ReadLine().Trim().ToLower();
-
                     if (usuarioNuevo.Length < 3)
                     {
                         Console.WriteLine("Error: el usuario debe tener al menos 3 caracteres.");
@@ -429,7 +519,7 @@ class Program
                     }
                 }
 
-                // CONTRASEÑA
+                // Contraseña
                 string claveTemporal = "";
                 while (true)
                 {
@@ -442,7 +532,7 @@ class Program
                     Console.WriteLine("Error: la contrasena debe tener al menos 4 caracteres.");
                 }
 
-                // CONFIRMAR CONTRASEÑA
+                // Confirmar contraseña
                 string claveConfirmacion = "";
                 while (true)
                 {
@@ -465,9 +555,9 @@ class Program
                 Console.WriteLine("\n*Cuenta creada exitosamente! Ahora puede iniciar sesion.\n");
             }
 
-            // ======================================================
+            // ------------------------------------------------------
             // INICIAR SESION
-            // ======================================================
+            // ------------------------------------------------------
             else if (opcionInicio == "2")
             {
                 if (!cuentacreada)
@@ -476,7 +566,7 @@ class Program
                 }
                 else
                 {
-                    // VALIDAR USUARIO
+                    // Validar usuario
                     bool usuarioValido = false;
                     while (!usuarioValido)
                     {
@@ -492,7 +582,7 @@ class Program
                         }
                     }
 
-                    // VALIDAR CONTRASEÑA
+                    // Validar contraseña
                     bool claveValida = false;
                     while (!claveValida)
                     {
@@ -511,26 +601,27 @@ class Program
                     Console.WriteLine("\nInicio de sesion exitoso.\n");
                     sesionIniciada = true;
 
-                    // ==================================================
-                    // MENU INTERNO
-                    // ==================================================
+                    // ==============================================
+                    // MENU INTERNO (CON SESION INICIADA)
+                    // ==============================================
                     while (sesionIniciada)
                     {
                         limpiarPantalla();
                         Console.WriteLine("=========================================================");
-                        Console.WriteLine("       BIENVENIDO FINCA GRANDEZ");
+                        Console.WriteLine("       BIENVENIDO A FINCA GRANDEZ");
                         Console.WriteLine("=========================================================");
                         Console.WriteLine("1. Ver Catalogo de Productos y Stock");
                         Console.WriteLine("2. Realizar un Pedido");
                         Console.WriteLine("3. Buscar un Pedido");
                         Console.WriteLine("4. Reporte Diario de Pedidos");
-                        Console.WriteLine("5. Cerrar sesion");
-                        Console.Write("Ingrese una opcion (1-5): ");
+                        Console.WriteLine("5. Reportes de Productos Mas Vendidos");
+                        Console.WriteLine("6. Cerrar sesion");
+                        Console.Write("Ingrese una opcion (1-6): ");
                         string opcionMenu = Console.ReadLine();
 
-                        // ==============================================
-                        // VER CATALOGO
-                        // ==============================================
+                        // ------------------------------------------
+                        // 1. VER CATALOGO
+                        // ------------------------------------------
                         if (opcionMenu == "1")
                         {
                             mostrarCatalogo();
@@ -553,18 +644,15 @@ class Program
                             }
                         }
 
-                        // ==============================================
-                        // REALIZAR PEDIDO
-                        // ==============================================
+                        // ------------------------------------------
+                        // 2. REALIZAR PEDIDO
+                        // ------------------------------------------
                         if (opcionMenu == "2")
                         {
                             mostrarCatalogo();
-
                             int totalProductos = productosNombre.Length;
 
-                            // ------------------------------------------
-                            // ELEGIR PRODUCTO
-                            // ------------------------------------------
+                            // Elegir producto
                             int productoElegido = 0;
                             while (true)
                             {
@@ -587,9 +675,7 @@ class Program
                             nombreProducto = productosNombre[productoElegido - 1];
                             int stockActual = obtenerStock(productoElegido);
 
-                            // ------------------------------------------
-                            // ELEGIR CANTIDAD
-                            // ------------------------------------------
+                            // Elegir cantidad (se repite hasta que no supere el stock)
                             while (true)
                             {
                                 Console.Write("Ingrese la cantidad a comprar (Paquetes): ");
@@ -615,14 +701,10 @@ class Program
                             }
 
                             Console.WriteLine("\nStock confirmado. Procediendo al registro del cliente...");
-
                             subtotal = precioProducto * cantidad;
 
-                            // ==========================================
-                            // DATOS DEL CLIENTE
-                            // ==========================================
+                            // ---- 2. DATOS DEL CLIENTE ----
                             Console.WriteLine("\n--- 2. DATOS DEL CLIENTE ---");
-
                             while (true)
                             {
                                 Console.Write("Nombre completo: ");
@@ -646,9 +728,7 @@ class Program
 
                             telefonoCliente = pedirCelular("Telefono celular: ");
 
-                            // ==========================================
-                            // METODO DE ENTREGA
-                            // ==========================================
+                            // ---- 3. METODO DE ENTREGA ----
                             Console.WriteLine("\n--- 3. METODO DE ENTREGA ---");
                             Console.WriteLine("1. Delivery (solo Lima - S/ 15.00)");
                             Console.WriteLine("2. Recojo en Tienda (Gratis)");
@@ -665,9 +745,9 @@ class Program
                                 Console.WriteLine("Error: opcion invalida.");
                             }
 
-                            // DELIVERY
                             if (tipoEntrega == "1")
                             {
+                                // Delivery
                                 while (true)
                                 {
                                     Console.Write("Direccion exacta de entrega: ");
@@ -693,16 +773,15 @@ class Program
                                 distritoCliente = elegirDistrito();
                                 costoDelivery = COSTO_DELIVERY;
                                 diasEntregas = DIAS_ENTREGA;
-
                                 Console.WriteLine($"Distrito elegido: {distritoCliente} (costo de envio: S/ {costoDelivery:F2})");
                                 Console.WriteLine($"Tiempo estimado de entrega: {diasEntregas}");
 
                                 telContacto = pedirCelular("Telefono de contacto para la entrega: ");
                                 textoEntrega = "Delivery";
                             }
-                            // RECOJO EN TIENDA
                             else
                             {
+                                // Recojo en tienda
                                 direccionCliente = "C. Jose Antonio Encinas 184";
                                 distritoCliente = "Pueblo Libre 15084";
                                 costoDelivery = 0.00;
@@ -715,9 +794,7 @@ class Program
                             totalPagar = subtotal + costoDelivery;
                             Console.WriteLine($"Costo de envio calculado: S/ {costoDelivery:F2}");
 
-                            // ==========================================
-                            // METODO DE PAGO
-                            // ==========================================
+                            // ---- 4. METODO DE PAGO (YAPE) ----
                             Console.WriteLine("\n--- 4. METODO DE PAGO ---");
                             Console.WriteLine("Unico metodo disponible: YAPE");
                             Console.WriteLine($"Realice el pago de S/ {totalPagar:F2} al siguiente numero:");
@@ -727,7 +804,6 @@ class Program
                             {
                                 Console.Write("¿Ya realizo el pago por Yape? (S = Si / N = No): ");
                                 string confirmacionPago = Console.ReadLine().Trim().ToUpper();
-
                                 if (confirmacionPago == "S")
                                 {
                                     break;
@@ -742,12 +818,10 @@ class Program
                                 }
                             }
 
-                            // CODIGO DE OPERACION YAPE
                             while (true)
                             {
                                 Console.Write("Ingrese el codigo de operacion de Yape (8 digitos): ");
                                 codigoOperacionYape = Console.ReadLine();
-
                                 if (long.TryParse(codigoOperacionYape, out numeroValidar))
                                 {
                                     if (codigoOperacionYape.Length == 8)
@@ -762,14 +836,13 @@ class Program
                                 }
                             }
 
-                            // ==========================================
-                            // TIPO DE COMPROBANTE
-                            // ==========================================
+                            // ---- 5. TIPO DE COMPROBANTE ----
+                            razonSocial = "";
                             while (true)
                             {
                                 Console.WriteLine("\n--- 5. TIPO DE COMPROBANTE ---");
                                 Console.WriteLine("1. Boleta (requiere DNI)");
-                                Console.WriteLine("2. Factura (requiere RUC)");
+                                Console.WriteLine("2. Factura (requiere RUC y Razon Social)");
 
                                 while (true)
                                 {
@@ -783,21 +856,18 @@ class Program
                                 }
 
                                 bool volver = false;
-
-                                // DNI
                                 if (tipoComprobante == "1")
                                 {
+                                    // Boleta (DNI)
                                     while (true)
                                     {
                                         Console.Write("Ingrese su DNI (8 digitos) o 0 para volver: ");
-                                        numDocumento = Console.ReadLine();
-
+                                        numDocumento = Console.ReadLine().Trim();
                                         if (numDocumento == "0")
                                         {
                                             volver = true;
                                             break;
                                         }
-
                                         if (long.TryParse(numDocumento, out numeroValidar))
                                         {
                                             if (numDocumento.Length == 8)
@@ -812,20 +882,18 @@ class Program
                                         }
                                     }
                                 }
-                                // RUC
                                 else
                                 {
+                                    // Factura (RUC y Razon Social)
                                     while (true)
                                     {
                                         Console.Write("Ingrese su RUC (11 digitos) o 0 para volver: ");
-                                        numDocumento = Console.ReadLine();
-
+                                        numDocumento = Console.ReadLine().Trim();
                                         if (numDocumento == "0")
                                         {
                                             volver = true;
                                             break;
                                         }
-
                                         if (long.TryParse(numDocumento, out numeroValidar))
                                         {
                                             if (numDocumento.Length == 11)
@@ -839,22 +907,38 @@ class Program
                                             Console.WriteLine("Error: el RUC debe contener solo numeros.");
                                         }
                                     }
+
+                                    // Pedir Razon Social si no cancelo
+                                    if (!volver)
+                                    {
+                                        while (true)
+                                        {
+                                            Console.Write("Ingrese la Razon Social (o 0 para volver): ");
+                                            razonSocial = Console.ReadLine().Trim();
+                                            if (razonSocial == "0")
+                                            {
+                                                volver = true;
+                                                break;
+                                            }
+                                            else if (razonSocial.Length >= 3)
+                                            {
+                                                break;
+                                            }
+                                            Console.WriteLine("Error: la Razon Social debe tener al menos 3 caracteres.");
+                                        }
+                                    }
                                 }
 
-                                if (volver == false)
+                                if (!volver)
                                 {
                                     break;
                                 }
                             }
 
-                            // ==========================================
-                            // DESCONTAR STOCK
-                            // ==========================================
+                            // ---- DESCONTAR STOCK ----
                             stock[productoElegido - 1] = setStock(stock[productoElegido - 1], stock[productoElegido - 1] - cantidad);
 
-                            // ==========================================
-                            // GENERAR Y GUARDAR PEDIDO
-                            // ==========================================
+                            // ---- GUARDAR PEDIDO ----
                             idPedido = generarIdPedido();
 
                             pedidosId.Add(idPedido);
@@ -867,8 +951,9 @@ class Program
                             pedidosTelContacto.Add(telContacto);
                             pedidosDias.Add(diasEntregas);
                             pedidosTotal.Add(totalPagar);
-                            pedidosFecha.Add("2026-10-04");
-                            pedidosHora.Add("19:12");
+                            DateTime ahora = DateTime.Now;
+                            pedidosFecha.Add(ahora.ToString("yyyy-MM-dd"));
+                            pedidosHora.Add(ahora.ToString("HH:mm"));
 
                             if (textoEntrega == "Delivery")
                             {
@@ -879,32 +964,68 @@ class Program
                                 pedidosEstado.Add("Pagado - Listo para recojo");
                             }
 
-                            // ==========================================
-                            // MOSTRAR COMPROBANTE
-                            // ==========================================
+                            // ---- SUMAR VENTA AL TIPO DE CAFE ----
+                            int posCafe = 0;
+                            if (productoElegido <= 3)
+                            {
+                                posCafe = 0;
+                            }
+                            else if (productoElegido <= 6)
+                            {
+                                posCafe = 1;
+                            }
+                            else if (productoElegido <= 8)
+                            {
+                                posCafe = 2;
+                            }
+                            else
+                            {
+                                posCafe = 3;
+                            }
+                            unidadesCafe[posCafe] = unidadesCafe[posCafe] + cantidad;
+                            montosCafe[posCafe] = montosCafe[posCafe] + subtotal;
+
+                            // ---- BOLETA / FACTURA FINAL ----
                             mostrarBoleta();
+                            Console.Write("Presione Enter para continuar...");
+                            Console.ReadLine();
                         }
 
-                        // ==============================================
-                        // BUSCAR PEDIDO
-                        // ==============================================
+                        // ------------------------------------------
+                        // 3. BUSCAR PEDIDO
+                        // ------------------------------------------
                         else if (opcionMenu == "3")
                         {
                             buscarPedido();
+                            Console.Write("Presione Enter para continuar...");
+                            Console.ReadLine();
                         }
 
-                        // ==============================================
-                        // REPORTE
-                        // ==============================================
+                        // ------------------------------------------
+                        // 4. REPORTE DIARIO
+                        // ------------------------------------------
                         else if (opcionMenu == "4")
                         {
                             reporteDiario();
+                            Console.Write("Presione Enter para continuar...");
+                            Console.ReadLine();
                         }
 
-                        // ==============================================
-                        // CERRAR SESION
-                        // ==============================================
+                        // ------------------------------------------
+                        // 5. REPORTES DE PRODUCTOS MAS VENDIDOS
+                        // ------------------------------------------
                         else if (opcionMenu == "5")
+                        {
+                            reporteMayorVenta();
+                            reporteMasUnidades();
+                            Console.Write("Presione Enter para continuar...");
+                            Console.ReadLine();
+                        }
+
+                        // ------------------------------------------
+                        // 6. CERRAR SESION
+                        // ------------------------------------------
+                        else if (opcionMenu == "6")
                         {
                             Console.WriteLine("\nCerrando sesion...\n");
                             sesionIniciada = false;
@@ -918,18 +1039,15 @@ class Program
                 }
             }
 
-            // ======================================================
+            // ------------------------------------------------------
             // SALIR DEL SISTEMA
-            // ======================================================
+            // ------------------------------------------------------
             else if (opcionInicio == "3")
             {
                 Console.WriteLine("\nSaliendo del sistema...");
                 break;
             }
 
-            // ======================================================
-            // OPCION INCORRECTA
-            // ======================================================
             else
             {
                 Console.WriteLine("Opcion no valida, intente de nuevo.\n");
