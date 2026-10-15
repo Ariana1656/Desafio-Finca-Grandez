@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 
 namespace PrototipoWebFincaGrandez
 {
@@ -157,273 +155,14 @@ namespace PrototipoWebFincaGrandez
 
         static string GenerarIdPedido()
         {
-            return "PED-" + siguienteIdPedido.ToString("D4");
+            int numero = pedidosId.Count + 1;
+            return "PED-" + numero.ToString("D4");
         }
 
-        // ---- Inventario ----
-        static int ObtenerStock(int id)
+        static int ObtenerStock(int numero)
         {
-            return int.Parse(diccionarioInventario[id][I_STOCK]);
+            return stock[numero - 1];
         }
-
-        static double ObtenerPrecio(int id)
-        {
-            return double.Parse(diccionarioInventario[id][I_PRECIO], cultura);
-        }
-
-        static string ObtenerNombre(int id)
-        {
-            return diccionarioInventario[id][I_NOMBRE];
-        }
-
-        static void CambiarStock(int id, int cantidad)
-        {
-            // cantidad positiva suma, negativa resta
-            diccionarioInventario[id][I_STOCK] = (ObtenerStock(id) + cantidad).ToString();
-        }
-
-        // ---- Pedidos ----
-        static double ObtenerTotalPedido(string[] pedido)
-        {
-            return double.Parse(pedido[P_TOTAL], cultura);
-        }
-
-        // ---- Usuarios ----
-        static string ValidarLogin(string nick, string pass)
-        {
-            if (diccionarioUsuarios.ContainsKey(nick))
-            {
-                if (diccionarioUsuarios[nick][U_CLAVE] == pass)
-                {
-                    return diccionarioUsuarios[nick][U_ROL]; // "admin" o "user"
-                }
-            }
-            return "fallo";
-        }
-
-        static bool CorreoYaRegistrado(string correo)
-        {
-            foreach (var usuario in diccionarioUsuarios)
-            {
-                if (usuario.Value[U_CORREO] == correo)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        static bool RegistrarUsuario(string nick, string pass, string rol, string nombre, string dir, string correo)
-        {
-            if (diccionarioUsuarios.ContainsKey(nick))
-            {
-                return false;
-            }
-            diccionarioUsuarios.Add(nick, new string[] { pass, rol, nombre, dir, correo });
-            return true;
-        }
-
-        // ---- Archivo de PEDIDOS (pedidos.txt) ----
-        // El archivo tiene el mismo formato de tabla que se ve en pantalla.
-        // Debajo de cada pedido hay lineas extra (Cliente, Usuario, etc.) para poder volver a cargarlo.
-
-        static void EscribirEncabezado(TextWriter salida, string titulo)
-        {
-            salida.WriteLine(new string('=', 73));
-            salida.WriteLine(titulo.PadLeft((73 + titulo.Length) / 2));
-            salida.WriteLine(new string('=', 73));
-            salida.WriteLine($"{"ID",-10}{"Fecha",-12}{"Hora",-7}{"Cliente",-20}{"Total",12}   Estado");
-            salida.WriteLine(new string('-', 73));
-        }
-
-        // Sirve para pantalla (paraArchivo = false) y para el archivo (paraArchivo = true)
-        static void EscribirPedido(TextWriter salida, string id, string[] p, bool paraArchivo)
-        {
-            string estado;
-            if (p[P_ESTADO] == "Completado")
-            {
-                estado = "COMPLETADO";
-            }
-            else
-            {
-                estado = "PENDIENTE";
-            }
-
-            string cliente = p[P_CLIENTE];
-            // En pantalla, si el nombre es muy largo se corta para no descuadrar la tabla
-            if (!paraArchivo && cliente.Length > 19)
-            {
-                cliente = cliente.Substring(0, 19);
-            }
-
-            string total = "S/ " + ObtenerTotalPedido(p).ToString("F2", cultura);
-            salida.WriteLine($"{id,-10}{p[P_FECHA],-12}{p[P_HORA],-7}{cliente,-20}{total,12}   {estado}");
-            salida.WriteLine("   Producto: " + p[P_PRODUCTO]);
-            salida.WriteLine("   Entrega:  " + p[P_ENTREGA]);
-
-            if (paraArchivo)
-            {
-                salida.WriteLine("   Cliente:    " + p[P_CLIENTE]);
-                salida.WriteLine("   Usuario:    " + p[P_USUARIO]);
-                salida.WriteLine("   Cantidad:   " + p[P_CANTIDAD]);
-                salida.WriteLine("   Direccion:  " + p[P_DIRECCION]);
-                salida.WriteLine("   Referencia: " + p[P_REFERENCIA]);
-                salida.WriteLine("   Contacto:   " + p[P_TELEFONO]);
-                salida.WriteLine("   Plazo:      " + p[P_DIAS]);
-            }
-            salida.WriteLine(new string('-', 73));
-        }
-
-        static void EscribirResumen(TextWriter salida, int cantidad, int completados, int delivery, int recojo, double totalVendido)
-        {
-            salida.WriteLine("Total de pedidos:  " + cantidad);
-            salida.WriteLine("  - Completados:   " + completados);
-            salida.WriteLine("  - Pendientes:    " + (cantidad - completados));
-            salida.WriteLine("  - Delivery:      " + delivery);
-            salida.WriteLine("  - Recojo:        " + recojo);
-            salida.WriteLine("Total vendido:     S/ " + totalVendido.ToString("F2", cultura));
-            salida.WriteLine(new string('=', 73));
-        }
-
-        static void GuardarPedidosArchivo()
-        {
-            Console.WriteLine("****************************");
-            Console.WriteLine("**GUARDAR DATOS EN ARCHIVO**");
-            Console.WriteLine("****************************");
-
-            if (diccionarioPedidos.Count == 0)
-            {
-                Console.WriteLine("No hay pedidos por guardar");
-                return;
-            }
-
-            int completados = 0;
-            int delivery = 0;
-            int recojo = 0;
-            double totalVendido = 0;
-
-            using (StreamWriter escribir = new StreamWriter(RUTA_PEDIDOS))
-            {
-                EscribirEncabezado(escribir, "PEDIDOS REGISTRADOS - FINCA GRANDEZ");
-                foreach (var ped in diccionarioPedidos)
-                {
-                    EscribirPedido(escribir, ped.Key, ped.Value, true);
-                    if (ped.Value[P_ESTADO] == "Completado")
-                    {
-                        completados++;
-                    }
-                    if (ped.Value[P_ENTREGA] == "Delivery")
-                    {
-                        delivery++;
-                    }
-                    else
-                    {
-                        recojo++;
-                    }
-                    totalVendido = totalVendido + ObtenerTotalPedido(ped.Value);
-                }
-                EscribirResumen(escribir, diccionarioPedidos.Count, completados, delivery, recojo, totalVendido);
-            }
-
-            Console.WriteLine(diccionarioPedidos.Count + " pedidos guardados en el archivo");
-        }
-
-        static void LeerPedidosArchivo()
-        {
-            if (!File.Exists(RUTA_PEDIDOS))
-            {
-                Console.WriteLine("No existe el archivo de pedidos");
-                return;
-            }
-
-            Console.WriteLine();
-            using (StreamReader lector = new StreamReader(RUTA_PEDIDOS))
-            {
-                string linea;
-                while ((linea = lector.ReadLine()) != null)
-                {
-                    // Las lineas extra solo sirven para cargar los datos, no se muestran
-                    bool lineaExtra = linea.StartsWith("   ")
-                        && !linea.StartsWith("   Producto:")
-                        && !linea.StartsWith("   Entrega:");
-                    if (!lineaExtra)
-                    {
-                        Console.WriteLine(linea);
-                    }
-                }
-            }
-        }
-
-        // Devuelve lo que hay despues de los dos puntos de una linea de detalle
-        static string ValorLinea(string linea)
-        {
-            return linea.Substring(linea.IndexOf(':') + 1).Trim();
-        }
-
-        static void CargarPedidosArchivo()
-        {
-            if (!File.Exists(RUTA_PEDIDOS))
-            {
-                return; // primera vez: no hay archivo todavia
-            }
-
-            diccionarioPedidos.Clear();
-
-            string[] lineas = File.ReadAllLines(RUTA_PEDIDOS);
-            for (int i = 0; i < lineas.Length; i++)
-            {
-                // Cada pedido empieza con su ID y tiene 9 lineas de detalle debajo
-                if (lineas[i].StartsWith("PED-") && i + 9 < lineas.Length)
-                {
-                    string[] fila = lineas[i].Split(new string[] { "  " }, StringSplitOptions.RemoveEmptyEntries);
-                    if (fila.Length >= 6)
-                    {
-                        string id = fila[0].Trim();
-                        string[] datos = new string[13];
-                        datos[P_FECHA] = fila[1].Trim();
-                        datos[P_HORA] = fila[2].Trim();
-                        datos[P_TOTAL] = fila[fila.Length - 2].Replace("S/", "").Trim();
-                        string estadoTexto = fila[fila.Length - 1].Trim();
-
-                        datos[P_PRODUCTO] = ValorLinea(lineas[i + 1]);
-                        datos[P_ENTREGA] = ValorLinea(lineas[i + 2]);
-                        datos[P_CLIENTE] = ValorLinea(lineas[i + 3]);
-                        datos[P_USUARIO] = ValorLinea(lineas[i + 4]);
-                        datos[P_CANTIDAD] = ValorLinea(lineas[i + 5]);
-                        datos[P_DIRECCION] = ValorLinea(lineas[i + 6]);
-                        datos[P_REFERENCIA] = ValorLinea(lineas[i + 7]);
-                        datos[P_TELEFONO] = ValorLinea(lineas[i + 8]);
-                        datos[P_DIAS] = ValorLinea(lineas[i + 9]);
-
-                        if (estadoTexto == "COMPLETADO")
-                        {
-                            datos[P_ESTADO] = "Completado";
-                        }
-                        else if (datos[P_ENTREGA] == "Delivery")
-                        {
-                            datos[P_ESTADO] = "Pagado - Pendiente de entrega";
-                        }
-                        else
-                        {
-                            datos[P_ESTADO] = "Pagado - Listo para recojo";
-                        }
-
-                        if (!diccionarioPedidos.ContainsKey(id))
-                        {
-                            diccionarioPedidos.Add(id, datos);
-                        }
-                    }
-                }
-            }
-
-            // para que el siguiente pedido no repita ID
-            siguienteIdPedido = diccionarioPedidos.Count + 1;
-        }
-
-
-        // =================================================================================
-        // 3. VISTAS (lo que se muestra en pantalla)
-        // =================================================================================
 
         // ==========================================================
         // CATALOGO Y DISTRITOS
@@ -699,21 +438,17 @@ namespace PrototipoWebFincaGrandez
             int delivery = 0;
             int recojo = 0;
             double totalVendido = 0;
-
-            Console.WriteLine();
-            EscribirEncabezado(Console.Out, "REPORTE DIARIO DE PEDIDOS - FINCA GRANDEZ");
-            foreach (var ped in diccionarioPedidos)
+            int totalDelivery = 0;
+            int totalRecojo = 0;
+            Console.WriteLine("---------------------------------------------------------");
+            for (int i = 0; i < pedidosId.Count; i++)
             {
                 // Solo cuentan los pedidos de hoy.
                 if (ped.Value[P_FECHA] == hoy)
                 {
-                    EscribirPedido(Console.Out, ped.Key, ped.Value, false);
-                    cantidad++;
-                    if (ped.Value[P_ESTADO] == "Completado")
-                    {
-                        completados++;
-                    }
-                    if (ped.Value[P_ENTREGA] == "Delivery")
+                    cantidadPedidos++;
+                    totalVendido = totalVendido + pedidosTotal[i];
+                    if (pedidosEntrega[i] == "Delivery")
                     {
                         delivery++;
                     }
@@ -721,7 +456,7 @@ namespace PrototipoWebFincaGrandez
                     {
                         recojo++;
                     }
-                    totalVendido = totalVendido + ObtenerTotalPedido(ped.Value);
+                    Console.WriteLine($"{pedidosId[i]} | {pedidosHora[i]} | {pedidosCliente[i]} | {pedidosProducto[i]} | {pedidosCantidad[i]} und. | S/ {pedidosTotal[i]:F2}");
                 }
             }
             if (cantidad == 0)
@@ -1459,98 +1194,56 @@ namespace PrototipoWebFincaGrandez
 
                 switch (opc)
                 {
-                    case 1:
-                        MostrarCatalogo();
-                        string deseaPedido = "";
-                        while (true)
+                    MostrarCatalogo();
+                    string deseaPedido = "";
+                    while (true)
+                    {
+                        deseaPedido = Leer("¿Desea realizar un pedido? (S = Si / N = No): ").Trim().ToUpper();
+                        if (deseaPedido == "S" || deseaPedido == "N")
                         {
-                            deseaPedido = Leer("¿Desea realizar un pedido? (S = Si / N = No): ").Trim().ToUpper();
-                            if (deseaPedido == "S" || deseaPedido == "N")
-                            {
-                                break;
-                            }
-                            Console.WriteLine("Error: responda S o N.");
+                            break;
                         }
-                        if (deseaPedido == "S")
-                        {
-                            RealizarPedido();
-                        }
-                        break;
-                    case 2:
+                        Console.WriteLine("Error: responda S o N.");
+                    }
+                    if (deseaPedido == "S")
+                    {
                         RealizarPedido();
-                        break;
-                    case 3:
-                        MostrarMisPedidos();
-                        break;
-                    case 4:
-                        BuscarPedido();
-                        break;
-                    case 5:
-                        Console.WriteLine("\nCerrando sesion...\n");
-                        return;
-                    default:
-                        Console.WriteLine("Opcion no valida, intente de nuevo.\n");
-                        break;
+                    }
                 }
-                Pausa();
-            }
-        }
-
-        // MENU DEL ADMINISTRADOR (rol "admin")
-        static void MenuAdmin()
-        {
-            while (true)
-            {
-                LimpiarPantalla();
-                Console.WriteLine("============= FINCA GRANDEZ - ADMINISTRADOR =============");
-                Console.WriteLine("1. Ver Inventario y Reponer Stock");
-                Console.WriteLine("2. Completar Pedidos Pendientes");
-                Console.WriteLine("3. Ver todos los pedidos");
-                Console.WriteLine("4. Buscar un Pedido");
-                Console.WriteLine("5. Reporte Diario de Pedidos");
-                Console.WriteLine("6. Productos Mas Vendidos");
-                Console.WriteLine("7. Ver Pedidos Guardados (archivo)");
-                Console.WriteLine("8. Cerrar sesion");
-
-                int opc;
-                if (!int.TryParse(Leer("Ingresar opcion: "), out opc))
+                else if (opcionMenu == "2")
                 {
-                    Console.WriteLine("Ingresar un valor numerico.");
-                    Pausa();
-                    continue;
+                    RealizarPedido();
+                }
+                else if (opcionMenu == "3")
+                {
+                    MostrarTodosLosPedidos();
+                }
+                else if (opcionMenu == "4")
+                {
+                    BuscarPedido();
+                }
+                else if (opcionMenu == "5")
+                {
+                    ReporteDiario();
+                }
+                else if (opcionMenu == "6")
+                {
+                    ProductosMasVendidos();
+                }
+                else if (opcionMenu == "7")
+                {
+                    Console.WriteLine("\nCerrando sesion...\n");
+                    sesionIniciada = false;
+                }
+                else
+                {
+                    Console.WriteLine("Opcion no valida, intente de nuevo.\n");
                 }
 
-                switch (opc)
+                if (sesionIniciada)
                 {
-                    case 1:
-                        ReponerStock();
-                        break;
-                    case 2:
-                        CompletarPedidos();
-                        break;
-                    case 3:
-                        MostrarTodosLosPedidos();
-                        break;
-                    case 4:
-                        BuscarPedido();
-                        break;
-                    case 5:
-                        ReporteDiario();
-                        break;
-                    case 6:
-                        ProductosMasVendidos();
-                        break;
-                    case 7:
-                        LeerPedidosArchivo();
-                        break;
-                    case 8:
-                        Console.WriteLine("\nCerrando sesion...\n");
-                        return;
-                    default:
-                        Console.WriteLine("Opcion no valida, intente de nuevo.\n");
-                        break;
+                    Leer("\nPresione ENTER para volver al menu...");
                 }
-                Pausa();
             }
         }
 
@@ -1583,7 +1276,12 @@ namespace PrototipoWebFincaGrandez
                         Console.WriteLine("Opcion no valida, intente de nuevo.\n");
                         break;
                 }
-                Pausa();
+                else
+                {
+                    Console.WriteLine("Opcion no valida, intente de nuevo.\n");
+                }
+
+                Leer("\nPresione ENTER para continuar...");
             }
         }
     }
