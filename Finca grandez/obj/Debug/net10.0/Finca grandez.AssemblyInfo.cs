@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Finca grandez")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1b22f83ef5be53570c4492a9c4cc4be7260aab5b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8d25f70a41d060da74206dd0c95b4dfa002765a2")]
 [assembly: System.Reflection.AssemblyProductAttribute("Finca grandez")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Finca grandez")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

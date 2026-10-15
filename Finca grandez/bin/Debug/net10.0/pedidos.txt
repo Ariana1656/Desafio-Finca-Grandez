@@ -1,0 +1,34 @@
+=========================================================================
+                   PEDIDOS REGISTRADOS - FINCA GRANDEZ
+=========================================================================
+ID        Fecha       Hora   Cliente                    Total   Estado
+-------------------------------------------------------------------------
+PED-0001  2026-10-14  23:36  Aymar Sicche          S/ 1622.00   PENDIENTE
+   Producto: Blend Premium (250g) x20 + Cafe Tradicion (500g) x4 + Cafe Tradicion (1kg) x5 + Cafe Geisha (250g) x10
+   Entrega:  Recojo en tienda
+   Cliente:    Aymar Sicche
+   Usuario:    aymar
+   Cantidad:   39
+   Direccion:  C. Jose Antonio Encinas 184, Pueblo Libre 15084
+   Referencia: -
+   Contacto:   -
+   Plazo:      -
+-------------------------------------------------------------------------
+PED-0002  2026-10-14  23:38  Ariana Sanchez         S/ 784.00   PENDIENTE
+   Producto: Blend Premium (500g) x10 + Blend Premium (1kg) x2 + Cafe Catuai (250g) x3
+   Entrega:  Delivery
+   Cliente:    Ariana Sanchez
+   Usuario:    ariana6
+   Cantidad:   15
+   Direccion:  Santa Ana 390, San Miguel
+   Referencia: Colegio Santa Ana
+   Contacto:   976331387
+   Plazo:      1 a 3 dias
+-------------------------------------------------------------------------
+Total de pedidos:  2
+  - Completados:   0
+  - Pendientes:    2
+  - Delivery:      1
+  - Recojo:        1
+Total vendido:     S/ 2406.00
+=========================================================================
