@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 
 namespace PrototipoWebFincaGrandez
@@ -56,7 +55,8 @@ namespace PrototipoWebFincaGrandez
         const string DIAS_ENTREGA = "1 a 3 dias";
 
         // ARCHIVOS TXT
-        const string RUTA_PEDIDOS = "pedidos.txt";
+        const string RUTA_PEDIDOS = "pedidos.txt";       // reporte legible
+        const string RUTA_DATOS = "pedidos_datos.txt";   // datos para recargar
 
         // DATOS DE FINCA GRANDEZ (para la boleta)
         const string EMISOR_NOMBRE = "CORPORACION GRANDEZ S.A.C.";
@@ -77,8 +77,6 @@ namespace PrototipoWebFincaGrandez
         static string usuarioActual = "";
         static string rolActual = "";
 
-        // Para guardar y leer precios siempre con punto decimal
-        static CultureInfo cultura = CultureInfo.InvariantCulture;
 
 
         // =================================================================================
@@ -170,7 +168,7 @@ namespace PrototipoWebFincaGrandez
 
         static double ObtenerPrecio(int numero)
         {
-            return double.Parse(diccionarioInventario[numero][I_PRECIO], cultura);
+            return double.Parse(diccionarioInventario[numero][I_PRECIO]);
         }
 
         static string ObtenerNombre(int numero)
@@ -187,7 +185,7 @@ namespace PrototipoWebFincaGrandez
 
         static double ObtenerTotalPedido(string[] pedido)
         {
-            return double.Parse(pedido[P_TOTAL], cultura);
+            return double.Parse(pedido[P_TOTAL]);
         }
 
         // Devuelve el rol si el login es correcto, o "fallo" si no
@@ -223,22 +221,57 @@ namespace PrototipoWebFincaGrandez
         // ==========================================================
         static void GuardarPedidosArchivo()
         {
-            StreamWriter escritor = new StreamWriter(RUTA_PEDIDOS);
+            // 1. Archivo de datos (para volver a cargar los pedidos al abrir el programa)
+            StreamWriter datos = new StreamWriter(RUTA_DATOS);
             foreach (var ped in diccionarioPedidos)
             {
-                escritor.WriteLine(ped.Key + "|" + string.Join("|", ped.Value));
+                datos.WriteLine(ped.Key + "|" + string.Join("|", ped.Value));
             }
+            datos.Close();
+
+            // 2. Archivo legible (reporte de pedidos)
+            StreamWriter escritor = new StreamWriter(RUTA_PEDIDOS);
+            int completados = 0;
+            escritor.WriteLine("=========================================================================");
+            escritor.WriteLine("                    PEDIDOS REGISTRADOS - FINCA GRANDEZ");
+            escritor.WriteLine("=========================================================================");
+            escritor.WriteLine($"{"ID",-10}{"Fecha",-12}{"Hora",-7}{"Cliente",-22}{"Total",-14}Estado");
+            escritor.WriteLine("-------------------------------------------------------------------------");
+            foreach (var ped in diccionarioPedidos)
+            {
+                string[] p = ped.Value;
+                string estadoTexto = "PENDIENTE";
+                if (p[P_ESTADO] == "Completado")
+                {
+                    estadoTexto = "COMPLETADO";
+                    completados++;
+                }
+                string total = "S/ " + ObtenerTotalPedido(p).ToString("F2");
+                escritor.WriteLine($"{ped.Key,-10}{p[P_FECHA],-12}{p[P_HORA],-7}{p[P_CLIENTE],-22}{total,-14}{estadoTexto}");
+                escritor.WriteLine($"   Producto:   {p[P_PRODUCTO]}");
+                escritor.WriteLine($"   Entrega:    {p[P_ENTREGA]}");
+                escritor.WriteLine($"   Cliente:    {p[P_CLIENTE]}");
+                escritor.WriteLine($"   Usuario:    {p[P_USUARIO]}");
+                escritor.WriteLine($"   Cantidad:   {p[P_CANTIDAD]}");
+                escritor.WriteLine($"   Direccion:  {p[P_DIRECCION]}");
+                escritor.WriteLine($"   Referencia: {p[P_REFERENCIA]}");
+                escritor.WriteLine($"   Contacto:   {p[P_TELEFONO]}");
+                escritor.WriteLine($"   Plazo:      {p[P_DIAS]}");
+                escritor.WriteLine("-------------------------------------------------------------------------");
+            }
+            escritor.WriteLine($"Total de pedidos: {diccionarioPedidos.Count}");
+            escritor.WriteLine($"- Completados: {completados}");
             escritor.Close();
             Console.WriteLine("Pedidos guardados en " + RUTA_PEDIDOS);
         }
 
         static void CargarPedidosArchivo()
         {
-            if (!File.Exists(RUTA_PEDIDOS))
+            if (!File.Exists(RUTA_DATOS))
             {
                 return;
             }
-            string[] lineas = File.ReadAllLines(RUTA_PEDIDOS);
+            string[] lineas = File.ReadAllLines(RUTA_DATOS);
             for (int i = 0; i < lineas.Length; i++)
             {
                 string[] partes = lineas[i].Split('|');
@@ -1235,7 +1268,7 @@ namespace PrototipoWebFincaGrandez
                 referenciaCliente,                     // [8] Referencia
                 telContacto,                           // [9] Tel. contacto
                 diasEntregas,                          // [10] Dias
-                totalPagar.ToString("0.00", cultura),  // [11] Total
+                totalPagar.ToString("0.00"),  // [11] Total
                 estado                                 // [12] Estado
             });
             siguienteIdPedido++;
