@@ -80,7 +80,7 @@ namespace PrototipoWebFincaGrandez
 
 
         // =================================================================================
-        // 2. FUNCIONES BASICAS (primer nivel: manipulan los datos)
+        // 2. FUNCIONES BASICAS
         // =================================================================================
         static string Leer(string mensaje)
         {
@@ -1309,7 +1309,7 @@ namespace PrototipoWebFincaGrandez
 
 
         // =================================================================================
-        // 4. MENUS Y CONTROLADORES
+        // 3. MENUS Y CONTROLADORES
         // =================================================================================
 
         // MENU DEL CLIENTE (rol "user")

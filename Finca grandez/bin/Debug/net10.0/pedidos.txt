@@ -14,5 +14,16 @@ PED-0001  2026-10-16  12:36  Ariana Sanchez        S/ 1164.00    PENDIENTE
    Contacto:   976331387
    Plazo:      1 a 3 dias
 -------------------------------------------------------------------------
-Total de pedidos: 1
+PED-0002  2026-10-16  14:07  ariana                S/ 320.00     PENDIENTE
+   Producto:   Blend Premium (250g) x10
+   Entrega:    Recojo en tienda
+   Cliente:    ariana
+   Usuario:    1234
+   Cantidad:   10
+   Direccion:  C. Jose Antonio Encinas 184, Pueblo Libre 15084
+   Referencia: -
+   Contacto:   -
+   Plazo:      -
+-------------------------------------------------------------------------
+Total de pedidos: 2
 - Completados: 0
