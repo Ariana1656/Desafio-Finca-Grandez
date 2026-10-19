@@ -54,8 +54,7 @@ namespace PrototipoWebFincaGrandez
         const double COSTO_DELIVERY = 15.00;
         const string DIAS_ENTREGA = "1 a 3 dias";
 
-        // ARCHIVOS TXT
-        const string RUTA_PEDIDOS = "pedidos.txt";       // reporte legible
+        // ARCHIVO TXT
         const string RUTA_DATOS = "pedidos_datos.txt";   // datos para recargar
 
         // DATOS DE FINCA GRANDEZ (para la boleta)
@@ -216,53 +215,18 @@ namespace PrototipoWebFincaGrandez
         }
 
         // ==========================================================
-        // ARCHIVO DE PEDIDOS (pedidos.txt)
+        // ARCHIVO DE PEDIDOS (pedidos_datos.txt)
         // Cada linea: id|fecha|hora|usuario|cliente|producto|... (13 campos + id)
         // ==========================================================
         static void GuardarPedidosArchivo()
         {
-            // 1. Archivo de datos (para volver a cargar los pedidos al abrir el programa)
+            // Archivo de datos (para volver a cargar los pedidos al abrir el programa)
             StreamWriter datos = new StreamWriter(RUTA_DATOS);
             foreach (var ped in diccionarioPedidos)
             {
                 datos.WriteLine(ped.Key + "|" + string.Join("|", ped.Value));
             }
             datos.Close();
-
-            // 2. Archivo legible (reporte de pedidos)
-            StreamWriter escritor = new StreamWriter(RUTA_PEDIDOS);
-            int completados = 0;
-            escritor.WriteLine("=========================================================================");
-            escritor.WriteLine("                    PEDIDOS REGISTRADOS - FINCA GRANDEZ");
-            escritor.WriteLine("=========================================================================");
-            escritor.WriteLine($"{"ID",-10}{"Fecha",-12}{"Hora",-7}{"Cliente",-22}{"Total",-14}Estado");
-            escritor.WriteLine("-------------------------------------------------------------------------");
-            foreach (var ped in diccionarioPedidos)
-            {
-                string[] p = ped.Value;
-                string estadoTexto = "PENDIENTE";
-                if (p[P_ESTADO] == "Completado")
-                {
-                    estadoTexto = "COMPLETADO";
-                    completados++;
-                }
-                string total = "S/ " + ObtenerTotalPedido(p).ToString("F2");
-                escritor.WriteLine($"{ped.Key,-10}{p[P_FECHA],-12}{p[P_HORA],-7}{p[P_CLIENTE],-22}{total,-14}{estadoTexto}");
-                escritor.WriteLine($"   Producto:   {p[P_PRODUCTO]}");
-                escritor.WriteLine($"   Entrega:    {p[P_ENTREGA]}");
-                escritor.WriteLine($"   Cliente:    {p[P_CLIENTE]}");
-                escritor.WriteLine($"   Usuario:    {p[P_USUARIO]}");
-                escritor.WriteLine($"   Cantidad:   {p[P_CANTIDAD]}");
-                escritor.WriteLine($"   Direccion:  {p[P_DIRECCION]}");
-                escritor.WriteLine($"   Referencia: {p[P_REFERENCIA]}");
-                escritor.WriteLine($"   Contacto:   {p[P_TELEFONO]}");
-                escritor.WriteLine($"   Plazo:      {p[P_DIAS]}");
-                escritor.WriteLine("-------------------------------------------------------------------------");
-            }
-            escritor.WriteLine($"Total de pedidos: {diccionarioPedidos.Count}");
-            escritor.WriteLine($"- Completados: {completados}");
-            escritor.Close();
-            Console.WriteLine("Pedidos guardados en " + RUTA_PEDIDOS);
         }
 
         static void CargarPedidosArchivo()
@@ -547,6 +511,7 @@ namespace PrototipoWebFincaGrandez
                 {
                     diccionarioPedidos[idPedido][P_ESTADO] = "Completado";
                     Console.WriteLine("Pedido marcado como completado.");
+                    GuardarPedidosArchivo();
                     return;
                 }
             }
@@ -606,25 +571,6 @@ namespace PrototipoWebFincaGrandez
                 Console.WriteLine("No hay pedidos registrados hoy.");
             }
             EscribirResumen(Console.Out, cantidad, completados, delivery, recojo, totalVendido);
-
-            // Preguntar si se guardan los pedidos en el archivo
-            if (diccionarioPedidos.Count > 0)
-            {
-                string respuesta = "";
-                while (true)
-                {
-                    respuesta = Leer("\n¿Desea guardar los pedidos en archivo? (S = Si / N = No): ").Trim().ToUpper();
-                    if (respuesta == "S" || respuesta == "N")
-                    {
-                        break;
-                    }
-                    Console.WriteLine("Error: responda S o N.");
-                }
-                if (respuesta == "S")
-                {
-                    GuardarPedidosArchivo();
-                }
-            }
         }
 
         // Ordena de mayor a menor con burbuja.
@@ -1305,6 +1251,9 @@ namespace PrototipoWebFincaGrandez
                 telefonoCliente, direccionCliente, distritoCliente, textoEntrega,
                 referenciaCliente, telContacto, diasEntregas, carrito,
                 subtotal, costoDelivery, totalPagar, codigoOperacionYape);
+
+            // Guardado automatico en pedidos_datos.txt
+            GuardarPedidosArchivo();
         }
 
 
