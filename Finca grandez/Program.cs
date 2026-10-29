@@ -80,77 +80,8 @@ namespace PrototipoWebFincaGrandez
 
         // =================================================================================
         // 2. FUNCIONES BASICAS
+        // (Leer, Pausa, LimpiarPantalla, etc. estan en Validador.cs)
         // =================================================================================
-        static string Leer(string mensaje)
-        {
-            Console.Write(mensaje);
-            string texto = Console.ReadLine();
-            if (texto == null)
-            {
-                texto = "";
-            }
-            return texto;
-        }
-
-        static void LimpiarPantalla()
-        {
-            Console.Clear();
-        }
-
-        // Evita que LimpiarPantalla borre el resultado antes de leerlo
-        static void Pausa()
-        {
-            Console.WriteLine("\nPresione una tecla para continuar...");
-            Console.ReadKey(true);
-        }
-
-        static bool SoloDigitos(string texto)
-        {
-            if (texto.Length == 0)
-            {
-                return false;
-            }
-            for (int i = 0; i < texto.Length; i++)
-            {
-                if (texto[i] < '0' || texto[i] > '9')
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        static bool TieneNumero(string texto)
-        {
-            for (int i = 0; i < texto.Length; i++)
-            {
-                if (texto[i] >= '0' && texto[i] <= '9')
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        static string PedirCelular(string mensaje)
-        {
-            while (true)
-            {
-                string telefono = Leer(mensaje);
-                if (!SoloDigitos(telefono))
-                {
-                    Console.WriteLine("Error: el celular debe contener solo numeros.");
-                }
-                else if (telefono.Length == 9 && telefono[0] == '9')
-                {
-                    return telefono;
-                }
-                else
-                {
-                    Console.WriteLine("Error: el celular debe tener 9 digitos y empezar con 9.");
-                }
-            }
-        }
 
         static string GenerarIdPedido()
         {
@@ -292,23 +223,8 @@ namespace PrototipoWebFincaGrandez
             {
                 Console.WriteLine($"{i + 1}. {distritosLima[i]}");
             }
-            while (true)
-            {
-                string entrada = Leer("Elija su distrito (numero): ");
-                int opcion;
-                if (!int.TryParse(entrada, out opcion))
-                {
-                    Console.WriteLine("Error: ingrese solo el numero del distrito.");
-                }
-                else if (opcion >= 1 && opcion <= distritosLima.Length)
-                {
-                    return distritosLima[opcion - 1];
-                }
-                else
-                {
-                    Console.WriteLine("Error: ingrese un numero de la lista.");
-                }
-            }
+            int opcion = Validador.PedirEnteroEnRango("Elija su distrito (numero): ", 1, distritosLima.Length);
+            return distritosLima[opcion - 1];
         }
 
         // ==========================================================
@@ -317,7 +233,7 @@ namespace PrototipoWebFincaGrandez
         static void BuscarPedido()
         {
             Console.WriteLine("\n--- BUSCAR PEDIDO ---");
-            string idBuscado = Leer("Ingrese el ID del pedido (ej. PED-0001): ").Trim().ToUpper();
+            string idBuscado = Validador.Leer("Ingrese el ID del pedido (ej. PED-0001): ").Trim().ToUpper();
 
             // El admin ve cualquier pedido; el cliente solo los suyos
             if (diccionarioPedidos.ContainsKey(idBuscado)
@@ -433,7 +349,7 @@ namespace PrototipoWebFincaGrandez
             int numero;
             while (true)
             {
-                string entrada = Leer("Ingrese el ID del producto a reponer (o 0 para cancelar): ").Trim();
+                string entrada = Validador.Leer("Ingrese el ID del producto a reponer (o 0 para cancelar): ").Trim();
                 if (!int.TryParse(entrada, out numero))
                 {
                     Console.WriteLine("Error: ingrese solo el numero del producto.");
@@ -455,7 +371,7 @@ namespace PrototipoWebFincaGrandez
             int cantidad;
             while (true)
             {
-                string entrada = Leer("Cantidad a sumar: ").Trim();
+                string entrada = Validador.Leer("Cantidad a sumar: ").Trim();
                 if (!int.TryParse(entrada, out cantidad))
                 {
                     Console.WriteLine("Error: ingrese solo numeros.");
@@ -494,7 +410,7 @@ namespace PrototipoWebFincaGrandez
 
             while (true)
             {
-                string idPedido = Leer("Ingrese el ID del pedido a completar (ej. PED-0001, o 0 para salir): ").Trim().ToUpper();
+                string idPedido = Validador.Leer("Ingrese el ID del pedido a completar (ej. PED-0001, o 0 para salir): ").Trim().ToUpper();
                 if (idPedido == "0")
                 {
                     return;
@@ -758,7 +674,7 @@ namespace PrototipoWebFincaGrandez
             string correoNuevo = "";
             while (true)
             {
-                string correoInput = Leer("Correo electronico: ").Trim().ToLower();
+                string correoInput = Validador.Leer("Correo electronico: ").Trim().ToLower();
                 if (correoInput == "")
                 {
                     Console.WriteLine("Error: el correo no puede estar vacio.");
@@ -790,7 +706,7 @@ namespace PrototipoWebFincaGrandez
             string usuarioNuevo = "";
             while (true)
             {
-                usuarioNuevo = Leer("Nombre de usuario : ").Trim().ToLower();
+                usuarioNuevo = Validador.Leer("Nombre de usuario : ").Trim().ToLower();
                 if (usuarioNuevo.Length < 3)
                 {
                     Console.WriteLine("Error: el usuario debe tener al menos 3 caracteres.");
@@ -806,22 +722,14 @@ namespace PrototipoWebFincaGrandez
             }
 
             // Contrasena
-            string claveTemporal = "";
-            while (true)
-            {
-                claveTemporal = Leer("Contrasena (minimo 4 caracteres): ");
-                if (claveTemporal.Length >= 4)
-                {
-                    break;
-                }
-                Console.WriteLine("Error: la contrasena debe tener al menos 4 caracteres.");
-            }
+            string claveTemporal = Validador.PedirTexto("Contrasena (minimo 4 caracteres): ", 4,
+                "Error: la contrasena debe tener al menos 4 caracteres.");
 
             // Confirmar contrasena
             string claveConfirmacion = "";
             while (true)
             {
-                claveConfirmacion = Leer("Confirme su contrasena: ");
+                claveConfirmacion = Validador.Leer("Confirme su contrasena: ");
                 if (claveConfirmacion == claveTemporal)
                 {
                     break;
@@ -840,12 +748,12 @@ namespace PrototipoWebFincaGrandez
             string usuarioIngresado = "";
             while (true)
             {
-                usuarioIngresado = Leer("Usuario (0 para volver): ").Trim().ToLower();
+                usuarioIngresado = Validador.Leer("Usuario (0 para volver): ").Trim().ToLower();
                 if (usuarioIngresado == "0")
                 {
                     return;
                 }
-                string claveIngresada = Leer("Contrasena: ");
+                string claveIngresada = Validador.Leer("Contrasena: ");
 
                 rol = ValidarLogin(usuarioIngresado, claveIngresada);
                 if (rol != "fallo")
@@ -861,13 +769,13 @@ namespace PrototipoWebFincaGrandez
             if (rolActual == "admin")
             {
                 Console.WriteLine("\nBienvenido Administrador.\n");
-                Pausa();
+                Validador.Pausa();
                 MenuAdmin();
             }
             else
             {
                 Console.WriteLine("\nInicio de sesion exitoso. Bienvenido a Finca Grandez.\n");
-                Pausa();
+                Validador.Pausa();
                 MenuUsuario();
             }
             usuarioActual = "";
@@ -892,7 +800,7 @@ namespace PrototipoWebFincaGrandez
                 int productoElegido = 0;
                 while (true)
                 {
-                    string entrada = Leer($"Elija el numero de producto (1-{totalProductos}): ");
+                    string entrada = Validador.Leer($"Elija el numero de producto (1-{totalProductos}): ");
                     if (!int.TryParse(entrada, out productoElegido))
                     {
                         Console.WriteLine("Error: ingrese solo el numero del producto.");
@@ -920,7 +828,7 @@ namespace PrototipoWebFincaGrandez
                     int cantidad = 0;
                     while (true)
                     {
-                        string entrada = Leer("Ingrese la cantidad a comprar (Paquetes): ");
+                        string entrada = Validador.Leer("Ingrese la cantidad a comprar (Paquetes): ");
                         if (!int.TryParse(entrada, out cantidad))
                         {
                             Console.WriteLine("Error: ingrese solo numeros.");
@@ -946,15 +854,7 @@ namespace PrototipoWebFincaGrandez
                 }
 
                 // Preguntar si desea seguir comprando
-                while (true)
-                {
-                    otroProducto = Leer("¿Desea anadir otro producto? (S = Si / N = Continuar con la compra): ").Trim().ToUpper();
-                    if (otroProducto == "S" || otroProducto == "N")
-                    {
-                        break;
-                    }
-                    Console.WriteLine("Error: responda S o N.");
-                }
+                otroProducto = Validador.PedirSN("¿Desea anadir otro producto? (S = Si / N = Continuar con la compra): ");
             }
 
             // Calcular el subtotal, las unidades y el resumen de productos
@@ -989,29 +889,20 @@ namespace PrototipoWebFincaGrandez
             string nombreCliente = "";
             while (true)
             {
-                nombreCliente = Leer("Nombre completo: ").Trim();
-                if (nombreCliente.Length >= 3 && !TieneNumero(nombreCliente))
+                nombreCliente = Validador.Leer("Nombre completo: ").Trim();
+                if (nombreCliente.Length >= 3 && !Validador.TieneNumero(nombreCliente))
                 {
                     break;
                 }
                 Console.WriteLine("Error: el nombre debe tener al menos 3 caracteres y no contener numeros.");
             }
-            string telefonoCliente = PedirCelular("Telefono celular: ");
+            string telefonoCliente = Validador.PedirCelular("Telefono celular: ");
 
             // ---- 3. METODO DE ENTREGA ----
             Console.WriteLine("\n--- 3. METODO DE ENTREGA ---");
             Console.WriteLine("1. Delivery (solo Lima - S/ 15.00)");
             Console.WriteLine("2. Recojo en Tienda (Gratis)");
-            string tipoEntrega = "";
-            while (true)
-            {
-                tipoEntrega = Leer("Seleccione una opcion (1-2): ");
-                if (tipoEntrega == "1" || tipoEntrega == "2")
-                {
-                    break;
-                }
-                Console.WriteLine("Error: opcion invalida.");
-            }
+            int tipoEntrega = Validador.PedirEnteroEnRango("Seleccione una opcion (1-2): ", 1, 2);
 
             string direccionCliente = "";
             string referenciaCliente = "";
@@ -1021,35 +912,20 @@ namespace PrototipoWebFincaGrandez
             string textoEntrega = "";
             double costoDelivery = 0;
 
-            if (tipoEntrega == "1")
+            if (tipoEntrega == 1)
             {
                 // Delivery
-                while (true)
-                {
-                    direccionCliente = Leer("Direccion exacta de entrega: ").Trim();
-                    if (direccionCliente.Length >= 7)
-                    {
-                        break;
-                    }
-                    Console.WriteLine("Error: ingrese una direccion valida (minimo 7 caracteres).");
-                }
-
-                while (true)
-                {
-                    referenciaCliente = Leer("Referencia (ej. frente al parque, porton negro): ").Trim();
-                    if (referenciaCliente.Length >= 5)
-                    {
-                        break;
-                    }
-                    Console.WriteLine("Error: ingrese una referencia valida (minimo 5 caracteres).");
-                }
+                direccionCliente = Validador.PedirTexto("Direccion exacta de entrega: ", 7,
+                    "Error: ingrese una direccion valida (minimo 7 caracteres).");
+                referenciaCliente = Validador.PedirTexto("Referencia (ej. frente al parque, porton negro): ", 5,
+                    "Error: ingrese una referencia valida (minimo 5 caracteres).");
 
                 distritoCliente = ElegirDistrito();
                 costoDelivery = COSTO_DELIVERY;
                 diasEntregas = DIAS_ENTREGA;
                 Console.WriteLine($"Distrito elegido: {distritoCliente} (costo de envio: S/ {costoDelivery:F2})");
                 Console.WriteLine($"Tiempo estimado de entrega: {diasEntregas}");
-                telContacto = PedirCelular("Telefono de contacto para la entrega: ");
+                telContacto = Validador.PedirCelular("Telefono de contacto para la entrega: ");
                 textoEntrega = "Delivery";
             }
             else
@@ -1075,38 +951,15 @@ namespace PrototipoWebFincaGrandez
 
             while (true)
             {
-                string confirmacionPago = Leer("¿Ya realizo el pago por Yape? (S = Si / N = No): ").Trim().ToUpper();
+                string confirmacionPago = Validador.PedirSN("¿Ya realizo el pago por Yape? (S = Si / N = No): ");
                 if (confirmacionPago == "S")
                 {
                     break;
                 }
-                else if (confirmacionPago == "N")
-                {
-                    Console.WriteLine("Por favor realice el pago antes de continuar.");
-                }
-                else
-                {
-                    Console.WriteLine("Error: responda S o N.");
-                }
+                Console.WriteLine("Por favor realice el pago antes de continuar.");
             }
 
-            string codigoOperacionYape = "";
-            while (true)
-            {
-                codigoOperacionYape = Leer("Ingrese el codigo de operacion de Yape (8 digitos): ");
-                if (!SoloDigitos(codigoOperacionYape))
-                {
-                    Console.WriteLine("Error: el codigo debe contener solo numeros.");
-                }
-                else if (codigoOperacionYape.Length == 8)
-                {
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Error: el codigo debe tener exactamente 8 digitos.");
-                }
-            }
+            string codigoOperacionYape = Validador.PedirDigitos("Ingrese el codigo de operacion de Yape (8 digitos): ", 8, "codigo");
 
             // ---- 5. TIPO DE COMPROBANTE ----
             string tipoComprobante = "";
@@ -1117,15 +970,7 @@ namespace PrototipoWebFincaGrandez
                 Console.WriteLine("\n--- 5. TIPO DE COMPROBANTE ---");
                 Console.WriteLine("1. Boleta (requiere DNI)");
                 Console.WriteLine("2. Factura (requiere RUC y Razon Social)");
-                while (true)
-                {
-                    tipoComprobante = Leer("Elija el tipo de comprobante (1-2): ");
-                    if (tipoComprobante == "1" || tipoComprobante == "2")
-                    {
-                        break;
-                    }
-                    Console.WriteLine("Error: opcion invalida.");
-                }
+                tipoComprobante = Validador.PedirEnteroEnRango("Elija el tipo de comprobante (1-2): ", 1, 2).ToString();
 
                 int longitud;
                 string documento;
@@ -1143,13 +988,13 @@ namespace PrototipoWebFincaGrandez
                 bool volver = false;
                 while (true)
                 {
-                    numDocumento = Leer($"Ingrese su {documento} ({longitud} digitos) o 0 para volver: ").Trim();
+                    numDocumento = Validador.Leer($"Ingrese su {documento} ({longitud} digitos) o 0 para volver: ").Trim();
                     if (numDocumento == "0")
                     {
                         volver = true;
                         break;
                     }
-                    if (!SoloDigitos(numDocumento))
+                    if (!Validador.SoloDigitos(numDocumento))
                     {
                         Console.WriteLine($"Error: el {documento} debe contener solo numeros.");
                     }
@@ -1168,7 +1013,7 @@ namespace PrototipoWebFincaGrandez
                 {
                     while (true)
                     {
-                        razonSocial = Leer("Ingrese la Razon Social (o 0 para volver): ").Trim();
+                        razonSocial = Validador.Leer("Ingrese la Razon Social (o 0 para volver): ").Trim();
                         if (razonSocial == "0")
                         {
                             volver = true;
@@ -1214,7 +1059,7 @@ namespace PrototipoWebFincaGrandez
                 referenciaCliente,                     // [8] Referencia
                 telContacto,                           // [9] Tel. contacto
                 diasEntregas,                          // [10] Dias
-                totalPagar.ToString("0.00"),  // [11] Total
+                totalPagar.ToString("0.00"),           // [11] Total
                 estado                                 // [12] Estado
             });
             siguienteIdPedido++;
@@ -1266,7 +1111,7 @@ namespace PrototipoWebFincaGrandez
         {
             while (true)
             {
-                LimpiarPantalla();
+                Validador.LimpiarPantalla();
                 Console.WriteLine("============= FINCA GRANDEZ - CLIENTE =============");
                 Console.WriteLine("Sesion: " + usuarioActual);
                 Console.WriteLine("1. Ver Catalogo de Productos y Stock");
@@ -1276,10 +1121,10 @@ namespace PrototipoWebFincaGrandez
                 Console.WriteLine("5. Cerrar sesion");
 
                 int opc;
-                if (!int.TryParse(Leer("Ingresar opcion: "), out opc))
+                if (!int.TryParse(Validador.Leer("Ingresar opcion: "), out opc))
                 {
                     Console.WriteLine("Ingresar un valor numerico.");
-                    Pausa();
+                    Validador.Pausa();
                     continue;
                 }
 
@@ -1287,16 +1132,7 @@ namespace PrototipoWebFincaGrandez
                 {
                     case 1:
                         MostrarCatalogo();
-                        string deseaPedido = "";
-                        while (true)
-                        {
-                            deseaPedido = Leer("¿Desea realizar un pedido? (S = Si / N = No): ").Trim().ToUpper();
-                            if (deseaPedido == "S" || deseaPedido == "N")
-                            {
-                                break;
-                            }
-                            Console.WriteLine("Error: responda S o N.");
-                        }
+                        string deseaPedido = Validador.PedirSN("¿Desea realizar un pedido? (S = Si / N = No): ");
                         if (deseaPedido == "S")
                         {
                             RealizarPedido();
@@ -1318,7 +1154,7 @@ namespace PrototipoWebFincaGrandez
                         Console.WriteLine("Opcion no valida, intente de nuevo.\n");
                         break;
                 }
-                Pausa();
+                Validador.Pausa();
             }
         }
 
@@ -1327,7 +1163,7 @@ namespace PrototipoWebFincaGrandez
         {
             while (true)
             {
-                LimpiarPantalla();
+                Validador.LimpiarPantalla();
                 Console.WriteLine("============= FINCA GRANDEZ - ADMINISTRADOR =============");
                 Console.WriteLine("Sesion: " + usuarioActual);
                 Console.WriteLine("1. Inventario y reposicion de stock");
@@ -1339,10 +1175,10 @@ namespace PrototipoWebFincaGrandez
                 Console.WriteLine("7. Cerrar sesion");
 
                 int opc;
-                if (!int.TryParse(Leer("Ingresar opcion: "), out opc))
+                if (!int.TryParse(Validador.Leer("Ingresar opcion: "), out opc))
                 {
                     Console.WriteLine("Ingresar un valor numerico.");
-                    Pausa();
+                    Validador.Pausa();
                     continue;
                 }
 
@@ -1373,23 +1209,26 @@ namespace PrototipoWebFincaGrandez
                         Console.WriteLine("Opcion no valida, intente de nuevo.\n");
                         break;
                 }
-                Pausa();
+                Validador.Pausa();
             }
         }
 
+
+
+        //PROGRAMA PRINCIPAL
         static void Main(string[] args)
         {
             CargarPedidosArchivo();
             while (true)
             {
-                LimpiarPantalla();
+                Validador.LimpiarPantalla();
                 Console.WriteLine("=========================================================");
                 Console.WriteLine("      SISTEMA DE PEDIDOS - FINCA GRANDEZ");
                 Console.WriteLine("=========================================================");
                 Console.WriteLine("1. Crear cuenta");
                 Console.WriteLine("2. Iniciar sesion");
                 Console.WriteLine("3. Salir");
-                string opcionInicio = Leer("Ingrese una opcion (1-3): ").Trim();
+                string opcionInicio = Validador.Leer("Ingrese una opcion (1-3): ").Trim();
 
                 switch (opcionInicio)
                 {
@@ -1407,7 +1246,7 @@ namespace PrototipoWebFincaGrandez
                         break;
                 }
 
-                Leer("\nPresione ENTER para continuar...");
+                Validador.Leer("\nPresione ENTER para continuar...");
             }
         }
     }
