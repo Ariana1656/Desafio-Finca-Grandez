@@ -13,3 +13,18 @@
 /Users/arianita16/Desktop/DESAFIO/Finca grandez/Finca grandez/obj/Debug/net10.0/Finca grandez.pdb
 /Users/arianita16/Desktop/DESAFIO/Finca grandez/Finca grandez/obj/Debug/net10.0/Finca grandez.genruntimeconfig.cache
 /Users/arianita16/Desktop/DESAFIO/Finca grandez/Finca grandez/obj/Debug/net10.0/ref/Finca grandez.dll
+C:\Users\user\Desktop\finca\Finca grandez\bin\Debug\net10.0\Finca grandez.exe
+C:\Users\user\Desktop\finca\Finca grandez\bin\Debug\net10.0\Finca grandez.deps.json
+C:\Users\user\Desktop\finca\Finca grandez\bin\Debug\net10.0\Finca grandez.runtimeconfig.json
+C:\Users\user\Desktop\finca\Finca grandez\bin\Debug\net10.0\Finca grandez.dll
+C:\Users\user\Desktop\finca\Finca grandez\bin\Debug\net10.0\Finca grandez.pdb
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.AssemblyInfoInputs.cache
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.AssemblyInfo.cs
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.csproj.CoreCompileInputs.cache
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.sourcelink.json
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.dll
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\refint\Finca grandez.dll
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.pdb
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.genruntimeconfig.cache
+C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\ref\Finca grandez.dll
