@@ -4,7 +4,7 @@ using System.IO;
 
 namespace PrototipoWebFincaGrandez
 {
-    public static class GestorArchivo
+        public static class GestorArchivo
     {
         const string RUTA_DATOS = "pedidos_datos.txt";
 

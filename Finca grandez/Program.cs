@@ -11,7 +11,7 @@ namespace PrototipoWebFincaGrandez
 
         // PEDIDOS. Clave: id del pedido (ej. "PED-0001")
         const int P_FECHA = 0, P_HORA = 1, P_USUARIO = 2, P_CLIENTE = 3, P_PRODUCTO = 4, P_CANTIDAD = 5,
-                  P_ENTREGA = 6, P_DIRECCION = 7, P_REFERENCIA = 8, P_TELEFONO = 9, P_DIAS = 10,
+                 P_ENTREGA = 6, P_DIRECCION = 7, P_REFERENCIA = 8, P_TELEFONO = 9, P_DIAS = 10,
                   P_TOTAL = 11, P_ESTADO = 12;
         static Dictionary<string, string[]> diccionarioPedidos = new Dictionary<string, string[]>();
 

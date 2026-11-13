@@ -8,7 +8,7 @@ namespace PrototipoWebFincaGrandez
         public static string Leer(string mensaje)
         {
             Console.Write(mensaje);
-            string texto = Console.ReadLine();
+            string texto = (Console.ReadLine() ?? "").Trim();
             if (texto == null)
             {
                 texto = "";
@@ -18,31 +18,28 @@ namespace PrototipoWebFincaGrandez
 
         public static void LimpiarPantalla()
         {
-             Console.Clear();
+            Console.Clear();
         }
 
         public static void Pausa()
         {
-               Console.WriteLine("\nPresione una tecla para continuar...");
-               Console.ReadKey(true);
+            Console.WriteLine("\nPresione una tecla para continuar...");
+            Console.ReadKey(true);
         }
 
         // ---------- Revisan un texto (devuelven true/false) ----------
         public static bool SoloDigitos(string texto)
         {
-            if (texto.Length == 0)
-            {
-                return false;
-            }
-            for (int i = 0; i < texto.Length; i++)
-            {
-                if (texto[i] < '0' || texto[i] > '9')
-                {
-                    return false;
-                }
-            }
-            return true;
+              if (texto.Length == 0) return false;
+              return SoloDigitosRec(texto, 0);
         }
+
+         static bool SoloDigitosRec(string texto, int i)
+         {
+             if (i == texto.Length) return true;                    // caso base
+                if (texto[i] < '0' || texto[i] > '9') return false;    // caso base
+                return SoloDigitosRec(texto, i + 1);                   // caso recursivo
+         }
 
         public static bool TieneNumero(string texto)
         {
@@ -78,17 +75,16 @@ namespace PrototipoWebFincaGrandez
         }
 
         // Devuelve "S" o "N"
+        // Devuelve "S" o "N"
         public static string PedirSN(string mensaje)
         {
-            while (true)
-            {
-                string respuesta = Leer(mensaje).Trim().ToUpper();
-                if (respuesta == "S" || respuesta == "N")
-                {
-                    return respuesta;
-                }
-                Console.WriteLine("Error: responda S o N.");
-            }
+             string respuesta = Leer(mensaje).Trim().ToUpper();
+             if (respuesta == "S" || respuesta == "N")
+             {
+                   return respuesta;                      // caso base
+             }
+                   Console.WriteLine("Error: responda S o N.");
+                    return PedirSN(mensaje);                   // caso recursivo
         }
 
         // Texto con un largo minimo (direccion, referencia, razon social...)

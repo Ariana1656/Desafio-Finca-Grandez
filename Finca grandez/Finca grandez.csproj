@@ -5,7 +5,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Finca_grandez</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
 </Project>

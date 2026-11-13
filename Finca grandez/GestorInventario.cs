@@ -33,6 +33,12 @@ namespace PrototipoWebFincaGrandez
             diccionarioInventario[numero][I_STOCK] = nuevo.ToString();
         }
 
+        public static int StockTotal(int numero)
+        {
+             if (numero == 0) return 0;                             // caso base
+             return ObtenerStock(numero) + StockTotal(numero - 1);  // caso recursivo
+        }
+
         public static void MostrarCatalogo()
         {
             Console.WriteLine("\n=========================================================");
@@ -47,6 +53,8 @@ namespace PrototipoWebFincaGrandez
                 else if (numero == 9) Console.WriteLine("\n CAFE GEISHA");
                 Console.WriteLine($"   [{numero}]  {ObtenerPresentacion(numero)}\t\tS/ {ObtenerPrecio(numero):F2}\t\t{ObtenerStock(numero)} und.");
             }
+            int total = StockTotal(ObtenerTotalProductos());
+            Console.WriteLine($"\n Stock total en almacen: {total} und.");
             Console.WriteLine("=========================================================\n");
         }
     }
