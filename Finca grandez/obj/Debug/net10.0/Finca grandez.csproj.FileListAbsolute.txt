@@ -28,3 +28,18 @@ C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\refint\Finca grandez
 C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.pdb
 C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\Finca grandez.genruntimeconfig.cache
 C:\Users\user\Desktop\finca\Finca grandez\obj\Debug\net10.0\ref\Finca grandez.dll
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\bin\Debug\net10.0\Finca grandez.exe
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\bin\Debug\net10.0\Finca grandez.deps.json
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\bin\Debug\net10.0\Finca grandez.runtimeconfig.json
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\bin\Debug\net10.0\Finca grandez.dll
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\bin\Debug\net10.0\Finca grandez.pdb
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\Finca grandez.GeneratedMSBuildEditorConfig.editorconfig
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\Finca grandez.AssemblyInfoInputs.cache
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\Finca grandez.AssemblyInfo.cs
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\Finca grandez.csproj.CoreCompileInputs.cache
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\Finca grandez.sourcelink.json
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\Finca grandez.dll
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\refint\Finca grandez.dll
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\Finca grandez.pdb
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\Finca grandez.genruntimeconfig.cache
+E:\UNIVERSIDAD\Fundamentos de la programacion\LineaxLinea\Finca grandez\obj\Debug\net10.0\ref\Finca grandez.dll

@@ -5,18 +5,30 @@ namespace PrototipoWebFincaGrandez
 {
     internal class Program
     {
+
+
+
         // =================================================================================
         // 1. ESTRUCTURAS Y CONSTANTES DE PEDIDOS Y REPORTES
         // =================================================================================
 
-        // PEDIDOS. Clave: id del pedido (ej. "PED-0001")
+        // 1.  // LAS CONSTANTES SON LOS INDICES 0,1,2,3,4...
+
+        // PEDIDOS. Clave: id del pedido (ej. "PED-0001") = Aqui accedemos al diccionarios mediante una clave y valor (string,(string[])) Donde el arreglo empieza en 0
+        // y va aumentando cada que se crea un nuevo pedido 
+
         const int P_FECHA = 0, P_HORA = 1, P_USUARIO = 2, P_CLIENTE = 3, P_PRODUCTO = 4, P_CANTIDAD = 5,
                  P_ENTREGA = 6, P_DIRECCION = 7, P_REFERENCIA = 8, P_TELEFONO = 9, P_DIAS = 10,
                   P_TOTAL = 11, P_ESTADO = 12;
+
+
         static Dictionary<string, string[]> diccionarioPedidos = new Dictionary<string, string[]>();
 
-        // Correlativo de pedidos
+        // Correlativo de pedidos = ES UN CONTADOR CORRELATIVO, con esto inicia el pedido y tenga un correlativo PED-0,1,2,3
         static int siguienteIdPedido = 1;
+
+        
+
 
         // VENTAS POR TIPO DE CAFE (para el reporte de mas vendidos)
         static int[] unidadesCafe = new int[4];
@@ -30,7 +42,7 @@ namespace PrototipoWebFincaGrandez
         const string EMISOR_NOMBRE = "CORPORACION GRANDEZ S.A.C.";
         const string EMISOR_RUC = "20602996931";
         const string EMISOR_DIRECCION = "C. JOSE ANTONIO ENCINAS 184 - PUEBLO LIBRE";
-        static string[] distritosLima =
+        static string[] distritosLima = //Aqui guardamos los distritos
         {
             "Cercado de Lima", "Brena", "La Victoria", "Rimac", "San Luis", "Lince",
             "Jesus Maria", "Pueblo Libre", "Magdalena del Mar", "San Miguel", "San Isidro",
@@ -52,12 +64,12 @@ namespace PrototipoWebFincaGrandez
 
         static string GenerarIdPedido()
         {
-            return "PED-" + siguienteIdPedido.ToString("D4");
+            return "PED-" + siguienteIdPedido.ToString("D4"); // D4 Es para 0001,2,3,4
         }
 
-        static double ObtenerTotalPedido(string[] pedido)
+        static double ObtenerTotalPedido(string[] pedido) // UTILIZAMOS EN MostrarTodosLosPedidos()
         {
-            return double.Parse(pedido[P_TOTAL]);
+            return double.Parse(pedido[P_TOTAL]); //ES UNA FUNCION DONDE GUARDAS EL MONTO TOTAL A PAGAR DEL PEDIDO 
         }
 
         static string ElegirDistrito()
@@ -79,10 +91,11 @@ namespace PrototipoWebFincaGrandez
             Console.WriteLine("\n--- BUSCAR PEDIDO ---");
             string idBuscado = Validador.Leer("Ingrese el ID del pedido (ej. PED-0001): ").Trim().ToUpper();
 
-            if (diccionarioPedidos.ContainsKey(idBuscado)
-                && (rolActual == "admin" || diccionarioPedidos[idBuscado][P_USUARIO] == usuarioActual))
+            if (diccionarioPedidos.ContainsKey(idBuscado) // VERIFICA QUE EXISTA PEDIDO DENTRO DEL DICCIONARIO
+                && (rolActual == "admin" || diccionarioPedidos[idBuscado][P_USUARIO] == usuarioActual)) // VERIFICA QUE EL USUARIO SOLO PUEDA
+                //VER SUS PEDIDOS DE EL 
             {
-                string[] p = diccionarioPedidos[idBuscado];
+                string[] p = diccionarioPedidos[idBuscado]; //SE CREA EL arreglo P que almacena el id buscado por el cliente 
                 Console.WriteLine("\nPedido encontrado");
                 Console.WriteLine($"Estado:     {p[P_ESTADO]}");
                 Console.WriteLine("Detalle:");
@@ -109,12 +122,12 @@ namespace PrototipoWebFincaGrandez
         static void MostrarMisPedidos()
         {
             Console.WriteLine("\n--- MIS PEDIDOS ---");
-            int encontrados = 0;
-            foreach (var ped in diccionarioPedidos)
+            int encontrados = 0; // Contador
+            foreach (var ped in diccionarioPedidos) 
             {
                 if (ped.Value[P_USUARIO] == usuarioActual)
                 {
-                    encontrados++;
+                    encontrados++; //Contador x2, suma +1 NO ACUMULA JUAN
                     Console.WriteLine($"{ped.Key} | {ped.Value[P_FECHA]} {ped.Value[P_HORA]} | {ped.Value[P_PRODUCTO]} | S/ {ObtenerTotalPedido(ped.Value):F2} | {ped.Value[P_ESTADO]}");
                 }
             }
@@ -124,11 +137,11 @@ namespace PrototipoWebFincaGrandez
             }
         }
 
-        static void MostrarTodosLosPedidos()
+        static void MostrarTodosLosPedidos() // ORDENADO POR BURBUJA, BELLOTA Y BOMBOM
         {
             Console.WriteLine("\n--- TODOS LOS PEDIDOS ---");
 
-            int cantidad = diccionarioPedidos.Count;
+            int cantidad = diccionarioPedidos.Count; }
             if (cantidad == 0)
             {
                 Console.WriteLine("No hay pedidos registrados.");
@@ -145,6 +158,7 @@ namespace PrototipoWebFincaGrandez
                     if (ObtenerTotalPedido(diccionarioPedidos[orden[j]]) < ObtenerTotalPedido(diccionarioPedidos[orden[j + 1]]))
                     {
                         string auxiliar = orden[j];
+                    }
                         orden[j] = orden[j + 1];
                         orden[j + 1] = auxiliar;
                     }
@@ -153,8 +167,8 @@ namespace PrototipoWebFincaGrandez
 
             for (int puesto = 0; puesto < cantidad; puesto++)
             {
-                string id = orden[puesto];
-                string[] p = diccionarioPedidos[id];
+                string id = orden[puesto]; // almacena el puesto despues del ordenamiento burbuja,bellota y bombom
+                string[] p = diccionarioPedidos[id];  // el arreglo p se crea para almacenar el id de arribita
                 Console.WriteLine("---------------------------------------------------------");
                 Console.WriteLine($"Puesto:     {puesto + 1}");
                 Console.WriteLine($"ID:         {id}");
@@ -176,7 +190,7 @@ namespace PrototipoWebFincaGrandez
             Console.WriteLine("---------------------------------------------------------");
             Console.WriteLine($"Total de pedidos registrados: {cantidad}");
         }
-
+//DIA 1 
         // ==========================================================
         // FUNCIONES ADMIN (Llaman al módulo GestorInventario)
         // ==========================================================
